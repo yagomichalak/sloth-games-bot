@@ -64,9 +64,9 @@ class Games(commands.Cog):
 	@tasks.loop(seconds=10)
 	async def change_status(self):
 		if self.active:
-    		await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f'with someone.'))
-    	else:
-			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'and waiting for someone.'))    		
+			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f'with someone.'))
+		else:
+			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'and waiting for someone.'))
 
 	# Downloads all content for the Language Jungle game
 	@commands.command()
@@ -158,8 +158,9 @@ class Games(commands.Cog):
 		Plays the Language Jungle.
 		'''
 		member = ctx.author
+		the_txt = discord.utils.get(member.guild.channels, id=language_jungle_txt_id)
 		if ctx.channel.id != language_jungle_txt_id:
-			return await ctx.send(f"**{member.mention}, you can only use this command in <#id>!**")
+			return await ctx.send(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.message.author.voice
@@ -172,9 +173,7 @@ class Games(commands.Cog):
 		if self.active:
 			return await ctx.send(f"**{member.mention}, someone is already playing!**")
 
-		the_txt = discord.utils.get(member.guild.channels, id=language_jungle_txt_id)
 		the_vc = discord.utils.get(member.guild.channels, id=language_jungle_vc_id)
-		print('ye')
 		self.active = True
 		self.member_id = member.id
 		await self.start_game(member, the_txt)
