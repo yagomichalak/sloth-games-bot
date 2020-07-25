@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 import os
 
 def get_token():
@@ -19,7 +19,7 @@ async def on_ready():
 # Handles the errors
 @client.event
 async def on_command_error(ctx, error):
-    
+
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You can't do that!")
 

@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from gtts import gTTS
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -58,6 +58,15 @@ class Games(commands.Cog):
 	async def on_ready(self):
 		print('Games cog is online!')
 		await self.download_update()
+		change_status.start()
+
+	# Members status update
+	@tasks.loop(seconds=10)
+	async def change_status(self):
+		if self.active:
+    		await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f'with someone.'))
+    	else:
+			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'and waiting for someone.'))    		
 
 	# Downloads all content for the Language Jungle game
 	@commands.command()
