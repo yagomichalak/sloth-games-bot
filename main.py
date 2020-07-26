@@ -9,7 +9,7 @@ def get_token():
 
 
 
-client = commands.Bot(command_prefix='x!')
+client = commands.Bot(command_prefix='zg!')
 token = get_token()
 
 @client.event
