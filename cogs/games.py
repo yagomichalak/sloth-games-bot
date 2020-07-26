@@ -160,17 +160,21 @@ class Games(commands.Cog):
 		member = ctx.author
 		the_txt = discord.utils.get(member.guild.channels, id=language_jungle_txt_id)
 		if ctx.channel.id != language_jungle_txt_id:
+			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.message.author.voice
 		if voice is None:
+			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, you're not in the voice channel**")
 
 		if voice.channel.id != language_jungle_vc_id:
+			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
 		if self.active:
+			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, someone is already playing!**")
 
 		the_vc = discord.utils.get(member.guild.channels, id=language_jungle_vc_id)
