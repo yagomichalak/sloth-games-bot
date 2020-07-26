@@ -52,6 +52,7 @@ class Games(commands.Cog):
 		self.active = False
 		self.questions = {}
 		self.member_id = None
+		self.reproduced_languages = []
 
 
 	@commands.Cog.listener()
@@ -229,11 +230,15 @@ class Games(commands.Cog):
 		path = './language_jungle/Speech'
 		all_languages = os.listdir(path)
 
-		language = random.choice(all_languages)
-		all_audios = os.listdir(f"{path}/{language}")
-		audio = random.choice(all_audios)
+		while True:
+			language = random.choice(all_languages)
+			all_audios = os.listdir(f"{path}/{language}")
+			audio = random.choice(all_audios)
+			path = f"{path}/{language}/{audio}"
+			if not language in self.reproduced_languages:
+				self.reproduced_languages.append(language)
+				break
 
-		path = f"{path}/{language}/{audio}"
 		return path, language, audio
 
 	# Waits for a user response and checks whether it's right or wrong
@@ -285,6 +290,7 @@ class Games(commands.Cog):
 				else:
 					self.active = False
 					self.round = 0
+					self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
 					await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 					return await self.make_score_image(self.questions, channel)
@@ -294,6 +300,7 @@ class Games(commands.Cog):
 				self.active = False
 				self.round = 0
 				self.member_id = None
+				self.reproduced_languages = []
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
 				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 				return await self.make_score_image(self.questions, channel)
@@ -347,7 +354,8 @@ class Games(commands.Cog):
 		else:
 			await channel.send(f"<:zslothmonopoly:705452184602673163> **20łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 		finally:
-			self.member_id = None			
+			self.member_id = None
+			await channel.send(embed=discord.Embed(title="**If you can, please send us an audio speaking to expand our game, we'd be pleased to hear it!**"))
 
 
 	async def update_user_money(self, user_id: int, money: int):
