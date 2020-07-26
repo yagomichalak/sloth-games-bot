@@ -324,10 +324,10 @@ class Games(commands.Cog):
 
 		for k, v in questions.items():
 		    try:
-		        language = Image.open(f"./language_jungle/Graphic/answers/{v[0]}.png").resize((120, 40), Image.LANCZOS)
+				language = Image.open(f"./language_jungle/Graphic/answers/{v[0]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(language, (240, height), language.convert('RGBA'))
-		        answer = Image.open(f"./language_jungle/Graphic/answers/{v[1]}.png").resize((120, 40), Image.LANCZOS)
-		        background.paste(answer, (410, height), answer.convert('RGBA'))
+				answer = Image.open(f"./language_jungle/Graphic/answers/{v[1]}.png").resize((120, 40), Image.LANCZOS)
+				background.paste(answer, (410, height), answer.convert('RGBA'))
 		    except Exception as error:
 		        print(k)
 		    finally:
