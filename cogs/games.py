@@ -52,7 +52,7 @@ class Games(commands.Cog):
 		self.active = False
 		self.questions = {}
 		self.member_id = None
-		self.reproduced_languages = []
+		#self.reproduced_languages = []
 
 
 	@commands.Cog.listener()
@@ -230,14 +230,14 @@ class Games(commands.Cog):
 		path = './language_jungle/Speech'
 		all_languages = os.listdir(path)
 
-		while True:
-			language = random.choice(all_languages)
-			all_audios = os.listdir(f"{path}/{language}")
-			audio = random.choice(all_audios)
-			path = f"{path}/{language}/{audio}"
-			if not language in self.reproduced_languages:
-				self.reproduced_languages.append(language)
-				break
+		# while True:
+		language = random.choice(all_languages)
+		all_audios = os.listdir(f"{path}/{language}")
+		audio = random.choice(all_audios)
+		path = f"{path}/{language}/{audio}"
+			# if not language in self.reproduced_languages:
+			# 	self.reproduced_languages.append(language)
+			# 	break
 
 		return path, language, audio
 
@@ -290,7 +290,7 @@ class Games(commands.Cog):
 				else:
 					self.active = False
 					self.round = 0
-					self.reproduced_languages = []
+					#self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
 					await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 					return await self.make_score_image(self.questions, channel)
@@ -300,7 +300,7 @@ class Games(commands.Cog):
 				self.active = False
 				self.round = 0
 				self.member_id = None
-				self.reproduced_languages = []
+				#self.reproduced_languages = []
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
 				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 				return await self.make_score_image(self.questions, channel)
