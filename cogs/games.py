@@ -318,7 +318,7 @@ class Games(commands.Cog):
 		    im_square = crop_max_square(im).resize((thumb_width, thumb_width), Image.LANCZOS)
 		    return im_square
 
-		small = ImageFont.truetype("./language_jungle/Nougat-ExtraBlack.ttf", 25)
+		small = ImageFont.truetype("./Nougat-ExtraBlack.ttf", 25)
 		background = Image.open("./language_jungle/Graphic/score.png")
 		height = 160
 
