@@ -200,7 +200,7 @@ class Games(commands.Cog):
 		# Checks if the bot is in the same voice channel that the user
 		if voice.channel == voice_client.channel:
 			# get a random language audio
-			path, language, audio = await self.get_random_language()
+			path, language, audio = self.get_random_language()
 
 			# Plays the song
 			if not voice_client.is_playing():
@@ -226,7 +226,7 @@ class Games(commands.Cog):
 			voice_client.play(audio_source, after=lambda e: print('finished'))
 
 	# Gets a random language audio
-	async def get_random_language(self) -> str:
+	def get_random_language(self) -> str:
 		while True:
 			path = './language_jungle/Speech'
 			all_languages = os.listdir(path)
