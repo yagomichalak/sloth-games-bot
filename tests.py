@@ -86,5 +86,5 @@ def list_spec2(parent):
             print("Empty folder!")
 
 
-list_spec2('144Wqi75ktpUNwg7mN6QnuciyVYwD7fee')
-#list_googledrive('')
+#list_spec2('144Wqi75ktpUNwg7mN6QnuciyVYwD7fee')
+list_googledrive('')

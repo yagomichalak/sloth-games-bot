@@ -151,7 +151,7 @@ class Games(commands.Cog):
 			await ctx.send("**I'm not even in a channel, lol!**")
 
 
-	@commands.cooldown(1, 7200, type=commands.BucketType.user)
+	@commands.cooldown(1, 1800, type=commands.BucketType.user)
 	@commands.command(aliases=['language', 'language jungle', 'jungle', 'lj', 'play', 'p'])
 	async def play_language(self, ctx):
 		'''
@@ -341,7 +341,7 @@ class Games(commands.Cog):
 		await channel.send(file=discord.File(path))
 		self.questions.clear()
 		try:
-			await self.update_user_money(self.member_id, 20)
+			await self.update_user_money(self.member_id, 10)
 		except Exception:
 			pass
 		else:
