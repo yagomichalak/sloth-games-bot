@@ -301,37 +301,37 @@ class Games(commands.Cog):
 	async def make_score_image(self, questions: dict, channel):
 		path = './language_jungle/Graphic/score_result.png'
 		def get_the_img(the_img: str):
-		    im = Image.open(the_img)
+			im = Image.open(the_img)
 
-		    thumb_width = 40
+			thumb_width = 40
 
-		    def crop_center(pil_img, crop_width, crop_height):
-		        img_width, img_height = pil_img.size
-		        return pil_img.crop(((img_width - crop_width) // 2,
-		                             (img_height - crop_height) // 2,
-		                             (img_width + crop_width) // 2,
-		                             (img_height + crop_height) // 2))
+			def crop_center(pil_img, crop_width, crop_height):
+				img_width, img_height = pil_img.size
+				return pil_img.crop(((img_width - crop_width) // 2,
+									 (img_height - crop_height) // 2,
+									 (img_width + crop_width) // 2,
+									 (img_height + crop_height) // 2))
 
-		    def crop_max_square(pil_img):
-		        return crop_center(pil_img, min(pil_img.size), min(pil_img.size))
+			def crop_max_square(pil_img):
+				return crop_center(pil_img, min(pil_img.size), min(pil_img.size))
 
-		    im_square = crop_max_square(im).resize((thumb_width, thumb_width), Image.LANCZOS)
-		    return im_square
+			im_square = crop_max_square(im).resize((thumb_width, thumb_width), Image.LANCZOS)
+			return im_square
 
 		small = ImageFont.truetype("./Nougat-ExtraBlack.ttf", 25)
 		background = Image.open("./language_jungle/Graphic/score.png")
 		height = 160
 
 		for k, v in questions.items():
-		    try:
+			try:
 				language = Image.open(f"./language_jungle/Graphic/answers/{v[0]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(language, (240, height), language.convert('RGBA'))
 				answer = Image.open(f"./language_jungle/Graphic/answers/{v[1]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(answer, (410, height), answer.convert('RGBA'))
-		    except Exception as error:
-		        print(k)
-		    finally:
-		        height += 35
+			except Exception as error:
+				print(k)
+			finally:
+				height += 35
 
 		draw = ImageDraw.Draw(background)
 		draw.text((240, 130), "PC", (0, 196, 187), font=small)
