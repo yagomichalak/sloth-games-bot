@@ -52,7 +52,7 @@ class Games(commands.Cog):
 		self.active = False
 		self.questions = {}
 		self.member_id = None
-		#self.reproduced_languages = []
+		self.reproduced_languages = []
 
 
 	@commands.Cog.listener()
@@ -227,19 +227,18 @@ class Games(commands.Cog):
 
 	# Gets a random language audio
 	async def get_random_language(self) -> str:
-		path = './language_jungle/Speech'
-		all_languages = os.listdir(path)
-
-		# while True:
-		language = random.choice(all_languages)
-		all_audios = os.listdir(f"{path}/{language}")
-		audio = random.choice(all_audios)
-		path = f"{path}/{language}/{audio}"
-			# if not language in self.reproduced_languages:
-			# 	self.reproduced_languages.append(language)
-			# 	break
-
-		return path, language, audio
+		while True:
+			path = './language_jungle/Speech'
+			all_languages = os.listdir(path)
+			language = random.choice(all_languages)
+			all_audios = os.listdir(f"{path}/{language}")
+			audio = random.choice(all_audios)
+			path = f"{path}/{language}/{audio}"
+			if not str(language) in self.reproduced_languages:
+				self.reproduced_languages.append(str(language))
+				return path, language, audio
+			else:
+				continue
 
 	# Waits for a user response and checks whether it's right or wrong
 	async def get_language_response(self, member: discord.Member, channel, language: str) -> str:
@@ -278,8 +277,7 @@ class Games(commands.Cog):
 				await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		finally:
 			# Checks if the member has remaining lives
-			if self.lives > 0:
-				
+			if self.lives > 0:				
 				# Restarts the game if it's not the last round
 				if self.round < 10:
 					await channel.send(f"**New round in 10 seconds...**")
@@ -358,6 +356,7 @@ class Games(commands.Cog):
 		self.wrong_answers = 0
 		self.right_answers = 0
 		self.active = False
+		self.reproduced_languages.clear()
 
 
 	async def update_user_money(self, user_id: int, money: int):
