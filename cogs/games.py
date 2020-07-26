@@ -85,7 +85,7 @@ class Games(commands.Cog):
 
 		all_folders = {
 			"Graphic": "1kfBh-OKe27CMOTCM2KL8mmELVMKo4koe",
-			"Speech": "1lyP6tlNnTGOvFko5Zc6zVmIF-ijU12wP",
+			"Speech": "16NGDpT4pX6JqvCbgMLFuLRJudq40FJNi",
 			"SFX": "1aI0ui6L9uVo8RorNkXjTRUWi9hIaXdul"
 		}
 		categories = ['Graphic', 'Speech', 'SFX']

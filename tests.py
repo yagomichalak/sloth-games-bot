@@ -35,25 +35,25 @@ def list_googledrive(image_suffix: str = None):
 
     all_folders = {
         "Graphic": "1kfBh-OKe27CMOTCM2KL8mmELVMKo4koe",
-        "Speech": "1lyP6tlNnTGOvFko5Zc6zVmIF-ijU12wP",
+        "Speech": "16NGDpT4pX6JqvCbgMLFuLRJudq40FJNi",
         "SFX": "1aI0ui6L9uVo8RorNkXjTRUWi9hIaXdul"
     }
 
     if not image_suffix:
         for folder, folder_id in all_folders.items():
             files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
-            print(f"\033[35mCategory:\033[m {folder}")
+            print(f"Category: {folder}")
             for file in files:
-                print(f"\033[34mItem name:\033[m \033[33m{file['title']:<30}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
+                print(f"Item name: {file['title']:<30} | ID: {file['id']}")
     else:
 
         for key, item in all_folders.items():
             if image_suffix == key:
                 files = drive.ListFile({'q': "'%s' in parents and trashed=false" % item}).GetList()
-                print(f"\033[35mCategory:\033[m {image_suffix}")
+                print(f"Category: {image_suffix}")
                 for file in files:
                     #embed.add_field(name=f"Name: {file['title']}", value=f"ID: {file['id']}", inline=False)
-                    print(f"\033[34mItem name:\033[m \033[33m{file['title']:<100}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
+                    print(f"Item name: {file['title']:<100} | ID: {file['id']}")
                 break
         else:
             print("Category not found!")
@@ -76,15 +76,15 @@ def list_spec2(parent):
         else:
             # filelist.append({"title": f['title'],"id": f['id'] ,"title1": f['alternateLink']})
             filelist.append({"title": f['title'], "id": f['id']})
-        print(f"{len(file_list)} files in it")
+        print(f"{filelist[0]['title']} {filelist[0]['id']} - {len(file_list)} files in it")
         if len(file_list) != 0:
             #print(file_list)
             for file in file_list:
                 print(
-                    f"\033[34mTitle\033[m: \033[35m{file['title']:<70}\033[m | \033[34mID\033[m: \033[33m{file['id']}\033[m")
+                    f"Title: {file['title']:<70} | ID: {file['id']}")
         else:
-            print("\033[36mEmpty folder!\033[m")
+            print("Empty folder!")
 
 
-#list_spec2('1pdSuEh1DgK0r2qFnpRGZHxv8nDuGz2z8')
-list_googledrive()
+list_spec2('144Wqi75ktpUNwg7mN6QnuciyVYwD7fee')
+#list_googledrive('')
