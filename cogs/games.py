@@ -11,6 +11,7 @@ from mysqldb import the_database
 
 language_jungle_txt_id = 736734120998207589
 language_jungle_vc_id = 736734244839227464
+cosmos_id = 423829836537135108
 
 gauth = GoogleAuth()
 # gauth.LocalWebserverAuth()
@@ -345,10 +346,10 @@ class Games(commands.Cog):
 			except Exception:
 				pass
 			else:
-				await channel.send(f"<:zslothmonopoly:705452184602673163> **20łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
+				await channel.send(f"<:zslothmonopoly:705452184602673163> **10łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
-
-		await channel.send(embed=discord.Embed(title="**If you can, please send us an audio speaking to expand our game, we'd be pleased to hear it!**"))
+		cosmos = discord.utils.get(channel.guild.members, id=cosmos_id)
+		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to {cosmos.mention}, to expand our game, we'd be pleased to hear it!**"))
 		self.questions.clear()
 		self.round = 0
 		self.lives = 3
