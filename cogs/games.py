@@ -193,6 +193,7 @@ class Games(commands.Cog):
 		# Checks if the bot is in a voice channel
 		if not voice_client:
 			await voice.channel.connect()
+			await asyncio.sleep(1)
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=member.guild)
 
 		# Checks if the bot is in the same voice channel that the user
