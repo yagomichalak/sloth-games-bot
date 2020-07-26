@@ -290,6 +290,9 @@ class Games(commands.Cog):
 				else:
 					self.active = False
 					self.round = 0
+					self.lives = 3
+					self.wrong_answers = 0
+					self.right_answers = 0
 					#self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
 					await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
@@ -299,7 +302,9 @@ class Games(commands.Cog):
 			else:
 				self.active = False
 				self.round = 0
-				self.member_id = None
+				self.lives = 3
+				self.wrong_answers = 0
+				self.right_answers = 0
 				#self.reproduced_languages = []
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
 				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
