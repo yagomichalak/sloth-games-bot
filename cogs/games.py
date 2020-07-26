@@ -9,8 +9,8 @@ import asyncio
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from mysqldb import the_database
 
-language_jungle_txt_id = 735272983479713884
-language_jungle_vc_id = 735273018770587728
+language_jungle_txt_id = 736734120998207589
+language_jungle_vc_id = 736734244839227464
 
 gauth = GoogleAuth()
 # gauth.LocalWebserverAuth()
@@ -66,7 +66,7 @@ class Games(commands.Cog):
 		if self.active:
 			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f'with someone.'))
 		else:
-			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f'and waiting for someone.'))
+			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'new players.'))
 
 	# Downloads all content for the Language Jungle game
 	@commands.command()
