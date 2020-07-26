@@ -58,7 +58,7 @@ class Games(commands.Cog):
 	async def on_ready(self):
 		print('Games cog is online!')
 		await self.download_update()
-		change_status.start()
+		self.change_status.start()
 
 	# Members status update
 	@tasks.loop(seconds=10)
