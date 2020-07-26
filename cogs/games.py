@@ -288,26 +288,16 @@ class Games(commands.Cog):
 				
 				# Otherwise it ends the game and shows the score of the member
 				else:
-					self.active = False
-					self.round = 0
-					self.lives = 3
 					#self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
 					await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
-					self.wrong_answers = 0
-					self.right_answers = 0
 					return await self.make_score_image(self.questions, channel)
 
 			# Otherwise it ends the game and shows the score of the member
 			else:
-				self.active = False
-				self.round = 0
-				self.lives = 3
 				#self.reproduced_languages = []
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
 				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
-				self.wrong_answers = 0
-				self.right_answers = 0
 				return await self.make_score_image(self.questions, channel)
 
 
@@ -351,16 +341,23 @@ class Games(commands.Cog):
 		draw.text((410, 130), "YOU", (0, 196, 187), font=small)
 		background.save('./language_jungle/Graphic/score_result.png')
 		await channel.send(file=discord.File(path))
+		if self.lives:
+			try:
+				await self.update_user_money(self.member_id, 10)
+			except Exception:
+				pass
+			else:
+				await channel.send(f"<:zslothmonopoly:705452184602673163> **20łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
+
+
+		await channel.send(embed=discord.Embed(title="**If you can, please send us an audio speaking to expand our game, we'd be pleased to hear it!**"))
 		self.questions.clear()
-		try:
-			await self.update_user_money(self.member_id, 10)
-		except Exception:
-			pass
-		else:
-			await channel.send(f"<:zslothmonopoly:705452184602673163> **20łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
-		finally:
-			self.member_id = None
-			await channel.send(embed=discord.Embed(title="**If you can, please send us an audio speaking to expand our game, we'd be pleased to hear it!**"))
+		self.round = 0
+		self.lives = 3
+		self.member_id = None
+		self.wrong_answers = 0
+		self.right_answers = 0
+		self.active = False
 
 
 	async def update_user_money(self, user_id: int, money: int):
