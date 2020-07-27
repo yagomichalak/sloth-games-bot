@@ -387,11 +387,21 @@ class Games(commands.Cog):
 		self.reproduced_languages.clear()
 
 
+
+
 	async def update_user_money(self, user_id: int, money: int):
 		mycursor, db = await the_database()
 		await mycursor.execute(f"UPDATE UserCurrency SET user_money = user_money + {money} WHERE user_id = {user_id}")
 		await db.commit()
 		await mycursor.close()
+
+
+	@commands.command(aliases='snap', 'refresh')
+	@commands.has_permissions(administrator=True)
+	async def snap_cooldown(self, ctx):
+		self.client.get_command('play_language').reset_cooldown(ctx)
+		await ctx.send("**Your cooldown has been reset!**")
+
 
 def setup(client):
 	client.add_cog(Games(client))
