@@ -145,26 +145,25 @@ class Games(commands.Cog):
 		if not self.active:
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
 		perms = ctx.channel.permissions_for(ctx.author)
-		if not perms.kick_members or not perms.administrator or not self.member_id == ctx.author.id:
+		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
+			self.round = 0
+			self.lives = 3
+			self.wrong_answers = 0
+			self.right_answers = 0
+			self.active = False
+			self.questions = {}
+			self.member_id = None
+			self.reproduced_languages = []
+			await ctx.send("**Session ended!**")
+			# guild = ctx.message.guild
+			# voice_client = guild.voice_client
+			# if voice_client:
+			# 	await voice_client.disconnect()
+			# 	await ctx.send('**!**')
+			# else:
+			# 	await ctx.send("**I'm not even in a channel, lol!**")
+		else:
 			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
-
-		self.round = 0
-		self.lives = 3
-		self.wrong_answers = 0
-		self.right_answers = 0
-		self.active = False
-		self.questions = {}
-		self.member_id = None
-		self.reproduced_languages = []
-
-		await ctx.send("**Session ended!**")
-		# guild = ctx.message.guild
-		# voice_client = guild.voice_client
-		# if voice_client:
-		# 	await voice_client.disconnect()
-		# 	await ctx.send('**!**')
-		# else:
-		# 	await ctx.send("**I'm not even in a channel, lol!**")
 
 
 	@commands.cooldown(1, 1800, type=commands.BucketType.user)
