@@ -138,19 +138,33 @@ class Games(commands.Cog):
 
 	# Leaves the channel
 	@commands.command()
-	@commands.has_permissions(administrator=True)
-	async def leave(self, ctx):
+	async def stop(self, ctx):
 		'''
 		Makes the bot leave the voice channel.
 		'''
-		guild = ctx.message.guild
-		voice_client = guild.voice_client
+		if not self.active:
+			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
+		perms = ctx.channel.permissions_for(ctx.author)
+		if not perms.kick_members or not perms.administrator or not self.member_id == ctx.author.id:
+			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
 
-		if voice_client:
-			await voice_client.disconnect()
-			await ctx.send('**Disconnected!**')
-		else:
-			await ctx.send("**I'm not even in a channel, lol!**")
+		self.round = 0
+		self.lives = 3
+		self.wrong_answers = 0
+		self.right_answers = 0
+		self.active = False
+		self.questions = {}
+		self.member_id = None
+		self.reproduced_languages = []
+
+		await ctx.send("**Session ended!**")
+		# guild = ctx.message.guild
+		# voice_client = guild.voice_client
+		# if voice_client:
+		# 	await voice_client.disconnect()
+		# 	await ctx.send('**!**')
+		# else:
+		# 	await ctx.send("**I'm not even in a channel, lol!**")
 
 
 	@commands.cooldown(1, 1800, type=commands.BucketType.user)
@@ -273,7 +287,7 @@ class Games(commands.Cog):
 				we = '<:wrong:735625624714215588>'
 				await channel.send(f"{we} **You got it `wrong`, {member.mention}!\nIt was {language}.** {we}")
 				await channel.send("**-1 ❤️**")
-				self.wrong_answers -= 1
+				self.wrong_answers += 1
 				self.lives -= 1
 				await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		finally:
@@ -348,8 +362,8 @@ class Games(commands.Cog):
 			else:
 				await channel.send(f"<:zslothmonopoly:705452184602673163> **10łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
-		cosmos = discord.utils.get(channel.guild.members, id=cosmos_id)
-		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to {cosmos.mention}, to expand our game, we'd be pleased to hear it!**"))
+		#cosmos = discord.utils.get(channel.guild.members, id=cosmos_id)
+		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
 		self.questions.clear()
 		self.round = 0
 		self.lives = 3
