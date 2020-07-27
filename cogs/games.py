@@ -8,6 +8,7 @@ import random
 import asyncio
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from mysqldb import the_database
+from time import sleep
 
 language_jungle_txt_id = 736734120998207589
 language_jungle_vc_id = 736734244839227464
@@ -215,7 +216,8 @@ class Games(commands.Cog):
 		if voice.channel == voice_client.channel:
 			# get a random language audio
 			path, language, audio = self.get_random_language()
-			await asyncio.sleep(1)
+			#await asyncio.sleep(1)
+			#sleep(1)
 			# Plays the song
 			if not voice_client.is_playing():
 				audio_source = discord.FFmpegPCMAudio(path)
@@ -241,9 +243,9 @@ class Games(commands.Cog):
 
 	# Gets a random language audio
 	def get_random_language(self) -> str:
+		path = './language_jungle/Speech'
+		all_languages = os.listdir(path)
 		while True:
-			path = './language_jungle/Speech'
-			all_languages = os.listdir(path)
 			language = random.choice(all_languages)
 			all_audios = os.listdir(f"{path}/{language}")
 			audio = random.choice(all_audios)
