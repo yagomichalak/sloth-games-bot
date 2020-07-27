@@ -396,7 +396,7 @@ class Games(commands.Cog):
 		await mycursor.close()
 
 
-	@commands.command(aliases='snap', 'refresh')
+	@commands.command(aliases=['snap', 'refresh'])
 	@commands.has_permissions(administrator=True)
 	async def snap_cooldown(self, ctx):
 		self.client.get_command('play_language').reset_cooldown(ctx)
