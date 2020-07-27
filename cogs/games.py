@@ -55,6 +55,7 @@ class Games(commands.Cog):
 		self.questions = {}
 		self.member_id = None
 		self.reproduced_languages = []
+		self.ready = False
 
 
 	@commands.Cog.listener()
@@ -62,6 +63,9 @@ class Games(commands.Cog):
 		print('Games cog is online!')
 		await self.download_update()
 		self.change_status.start()
+		channel = self.client.get_channel(language_jungle_txt_id)
+		self.ready = True
+		await channel.send("**I'm ready to play!**")
 
 	# Members status update
 	@tasks.loop(seconds=10)
@@ -189,6 +193,9 @@ class Games(commands.Cog):
 			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
+		if not self.ready:
+			return await ctx.send("**I'm still downloading the audios, wait a bit!**")
+
 		if self.active:
 			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, someone is already playing!**")
@@ -243,17 +250,21 @@ class Games(commands.Cog):
 
 	# Gets a random language audio
 	def get_random_language(self) -> str:
-		path = './language_jungle/Speech'
-		all_languages = os.listdir(path)
 		while True:
-			language = random.choice(all_languages)
-			all_audios = os.listdir(f"{path}/{language}")
-			audio = random.choice(all_audios)
-			path = f"{path}/{language}/{audio}"
-			if not str(language) in self.reproduced_languages:
-				self.reproduced_languages.append(str(language))
-				return path, language, audio
-			else:
+			try:
+				path = './language_jungle/Speech'
+				all_languages = os.listdir(path)
+				language = random.choice(all_languages)
+				all_audios = os.listdir(f"{path}/{language}")
+				audio = random.choice(all_audios)
+				path = f"{path}/{language}/{audio}"
+				if not str(language) in self.reproduced_languages:
+					self.reproduced_languages.append(str(language))
+					return path, language, audio
+				else:
+					continue
+			except Exception:
+				print('try harder')
 				continue
 
 	# Waits for a user response and checks whether it's right or wrong
@@ -270,6 +281,7 @@ class Games(commands.Cog):
 			self.wrong_answers += 1
 			self.lives -= 1
 			self.questions[self.round] = [str(language).lower(), None]
+			await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		else:
 			answer = answer.content
 			print(answer)
@@ -285,7 +297,7 @@ class Games(commands.Cog):
 
 			# Otherwise it's a wrong answer
 			else:
-				we = '<:wrong:735625624714215588>'
+				we = '<:wrong:735204715415076954>'
 				await channel.send(f"{we} **You got it `wrong`, {member.mention}!\nIt was {language}.** {we}")
 				await channel.send("**-1 ❤️**")
 				self.wrong_answers += 1
