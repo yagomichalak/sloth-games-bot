@@ -205,7 +205,8 @@ class Games(commands.Cog):
 		the_vc = discord.utils.get(member.guild.channels, id=language_jungle_vc_id)
 		self.active = True
 		self.member_id = member.id
-		await self.start_game(member, the_txt)
+		#await self.start_game(member, the_txt)
+		self.task = self.client.loop.create_task(start_game(member, the_txt))
 
 	# Starts the Language Jungle game
 	async def start_game(self, member: discord.Member, the_txt):
@@ -233,8 +234,8 @@ class Games(commands.Cog):
 				await the_txt.send("**The round starts now!**")
 				self.round += 1
 				await the_txt.send(f"**`ROUND {self.round}`**")
-				voice_client.play(audio_source, after=lambda e: self.task = self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
-				#voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
+				#voice_client.play(audio_source, after=lambda e: self.task = self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
+				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
 
 		else:
 			# (to-do) send a message to a specific channel
