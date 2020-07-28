@@ -56,6 +56,7 @@ class Games(commands.Cog):
 		self.member_id = None
 		self.reproduced_languages = []
 		self.ready = False
+		self.task = None
 
 
 	@commands.Cog.listener()
@@ -151,6 +152,7 @@ class Games(commands.Cog):
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
 		perms = ctx.channel.permissions_for(ctx.author)
 		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
+			self.task.cancel()
 			self.round = 0
 			self.lives = 3
 			self.wrong_answers = 0
@@ -159,14 +161,13 @@ class Games(commands.Cog):
 			self.questions = {}
 			self.member_id = None
 			self.reproduced_languages = []
+			guild = ctx.message.guild
+			#voice_client = guild.voice_client
+			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=member.guild)
+			if voice_client and voice_client.is_playing():
+				#await voice_client.disconnect()
+				await voice_client.close()
 			await ctx.send("**Session ended!**")
-			# guild = ctx.message.guild
-			# voice_client = guild.voice_client
-			# if voice_client:
-			# 	await voice_client.disconnect()
-			# 	await ctx.send('**!**')
-			# else:
-			# 	await ctx.send("**I'm not even in a channel, lol!**")
 		else:
 			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
 
@@ -231,7 +232,11 @@ class Games(commands.Cog):
 				await the_txt.send("**The round starts now!**")
 				self.round += 1
 				await the_txt.send(f"**`ROUND {self.round}`**")
-				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
+				coro = self.get_language_response(member, the_txt, language)
+				self.task = self.client.loop.create_task(coro)
+				voice_client.play(audio_source, after=lambda e: task)
+				#voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
+
 		else:
 			# (to-do) send a message to a specific channel
 			await the_txt.send("**The bot is in a different voice channel!**")
@@ -396,11 +401,25 @@ class Games(commands.Cog):
 		await mycursor.close()
 
 
-	@commands.command(aliases=['snap', 'refresh'])
+	@client.command(aliases=['refresh', 'rfcd', 'reset'])
 	@commands.has_permissions(administrator=True)
-	async def snap_cooldown(self, ctx):
-		self.client.get_command('play_language').reset_cooldown(ctx)
-		await ctx.send("**Your cooldown has been reset!**")
+	async def refresh_cooldown(ctx, member: discord.Member = None):
+		'''
+		Resets the cooldown for a specific user.
+		:param member: The member to reset the cooldown (Optional).
+		'''
+		if not member:
+			member = ctx.author
+
+		author = ctx.author
+		channel = ctx.channel
+		for m in await channel.history(limit=100).flatten():
+			if m.author == author and m.channel.id == channel.id:
+				new_ctx = await client.get_context(m)
+				client.get_command('random').reset_cooldown(new_ctx)
+				return await ctx.send(f"**{author.mention}'s cooldown has been reset!**")
+		else:
+			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
 
 
 def setup(client):
