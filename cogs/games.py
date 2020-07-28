@@ -233,9 +233,7 @@ class Games(commands.Cog):
 				await the_txt.send("**The round starts now!**")
 				self.round += 1
 				await the_txt.send(f"**`ROUND {self.round}`**")
-				coro = self.get_language_response(member, the_txt, language)
-				self.task = self.client.loop.create_task(coro)
-				voice_client.play(audio_source, after=lambda e: task)
+				voice_client.play(audio_source, after=lambda e: self.task = self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
 				#voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
 
 		else:
