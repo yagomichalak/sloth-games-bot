@@ -206,7 +206,7 @@ class Games(commands.Cog):
 		self.active = True
 		self.member_id = member.id
 		#await self.start_game(member, the_txt)
-		self.task = self.client.loop.create_task(start_game(member, the_txt))
+		self.task = self.client.loop.create_task(self.start_game(member, the_txt))
 
 	# Starts the Language Jungle game
 	async def start_game(self, member: discord.Member, the_txt):
