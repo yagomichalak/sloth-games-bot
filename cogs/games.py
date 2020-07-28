@@ -416,7 +416,7 @@ class Games(commands.Cog):
 		for m in await channel.history(limit=100).flatten():
 			if m.author == author and m.channel.id == channel.id:
 				new_ctx = await self.client.get_context(m)
-				self.client.get_command('random').reset_cooldown(new_ctx)
+				self.client.get_command('play_language').reset_cooldown(new_ctx)
 				return await ctx.send(f"**{author.mention}'s cooldown has been reset!**")
 		else:
 			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
