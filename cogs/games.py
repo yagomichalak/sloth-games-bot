@@ -235,7 +235,7 @@ class Games(commands.Cog):
 				self.round += 1
 				await the_txt.send(f"**`ROUND {self.round}`**")
 				#voice_client.play(audio_source, after=lambda e: self.task = self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
-				self.task = self.client.loop(voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language))))
+				self.task = self.client.loop.create_task(voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language))))
 
 		else:
 			# (to-do) send a message to a specific channel
