@@ -146,7 +146,7 @@ class Games(commands.Cog):
 	@commands.command()
 	async def stop(self, ctx):
 		'''
-		Makes the bot leave the voice channel.
+		Stops the game.
 		'''
 		if not self.active:
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
@@ -405,7 +405,7 @@ class Games(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	async def refresh_cooldown(ctx, member: discord.Member = None):
 		'''
-		Resets the cooldown for a specific user.
+		(ADM) Resets the cooldown for a specific user.
 		:param member: The member to reset the cooldown (Optional).
 		'''
 		if not member:
@@ -415,8 +415,8 @@ class Games(commands.Cog):
 		channel = ctx.channel
 		for m in await channel.history(limit=100).flatten():
 			if m.author == author and m.channel.id == channel.id:
-				new_ctx = await client.get_context(m)
-				client.get_command('random').reset_cooldown(new_ctx)
+				new_ctx = await self.client.get_context(m)
+				self.client.get_command('random').reset_cooldown(new_ctx)
 				return await ctx.send(f"**{author.mention}'s cooldown has been reset!**")
 		else:
 			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
