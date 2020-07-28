@@ -153,6 +153,7 @@ class Games(commands.Cog):
 		perms = ctx.channel.permissions_for(ctx.author)
 		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
 			self.task.cancel()
+			self.task = None
 			self.round = 0
 			self.lives = 3
 			self.wrong_answers = 0
