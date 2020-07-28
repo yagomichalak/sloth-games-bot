@@ -56,7 +56,7 @@ class Games(commands.Cog):
 		self.member_id = None
 		self.reproduced_languages = []
 		self.ready = False
-		self.task = None
+		self.status = 'normal'
 
 
 	@commands.Cog.listener()
@@ -152,8 +152,7 @@ class Games(commands.Cog):
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
 		perms = ctx.channel.permissions_for(ctx.author)
 		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
-			self.task.cancel()
-			self.task = None
+			self.status = 'stop'
 			self.round = 0
 			self.lives = 3
 			self.wrong_answers = 0
@@ -163,11 +162,9 @@ class Games(commands.Cog):
 			self.member_id = None
 			self.reproduced_languages = []
 			guild = ctx.message.guild
-			#voice_client = guild.voice_client
-			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=member.guild)
+			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
 			if voice_client and voice_client.is_playing():
-				#await voice_client.disconnect()
-				await voice_client.close()
+				voice_client.stop()
 			await ctx.send("**Session ended!**")
 		else:
 			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
@@ -206,7 +203,6 @@ class Games(commands.Cog):
 		self.active = True
 		self.member_id = member.id
 		await self.start_game(member, the_txt)
-		#self.task = self.client.loop.create_task(self.start_game(member, the_txt))
 
 	# Starts the Language Jungle game
 	async def start_game(self, member: discord.Member, the_txt):
@@ -226,16 +222,13 @@ class Games(commands.Cog):
 		if voice.channel == voice_client.channel:
 			# get a random language audio
 			path, language, audio = self.get_random_language()
-			#await asyncio.sleep(1)
-			#sleep(1)
 			# Plays the song
 			if not voice_client.is_playing():
 				audio_source = discord.FFmpegPCMAudio(path)
 				await the_txt.send("**The round starts now!**")
 				self.round += 1
 				await the_txt.send(f"**`ROUND {self.round}`**")
-				#voice_client.play(audio_source, after=lambda e: self.task = self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
-				self.task = self.client.loop.create_task(voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language))))
+				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
 
 		else:
 			# (to-do) send a message to a specific channel
@@ -274,6 +267,9 @@ class Games(commands.Cog):
 
 	# Waits for a user response and checks whether it's right or wrong
 	async def get_language_response(self, member: discord.Member, channel, language: str) -> str:
+		if self.status == 'stop':
+			self.status = 'normal'
+			return
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
 			return m.author.id == member.id and m.channel.id == channel.id
@@ -390,7 +386,7 @@ class Games(commands.Cog):
 		self.right_answers = 0
 		self.active = False
 		self.reproduced_languages.clear()
-		self.task = None
+		self.status = 'normal'
 
 
 
