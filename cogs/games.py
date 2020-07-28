@@ -408,7 +408,6 @@ class Games(commands.Cog):
 		if not member:
 			member = ctx.author
 
-		author = ctx.author
 		channel = ctx.channel
 		for m in await channel.history(limit=100).flatten():
 			if m.author == member and m.channel.id == channel.id:
