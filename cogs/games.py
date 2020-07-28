@@ -401,9 +401,9 @@ class Games(commands.Cog):
 		await mycursor.close()
 
 
-	@client.command(aliases=['refresh', 'rfcd', 'reset'])
+	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
 	@commands.has_permissions(administrator=True)
-	async def refresh_cooldown(ctx, member: discord.Member = None):
+	async def refresh_cooldown(self, ctx, member: discord.Member = None):
 		'''
 		(ADM) Resets the cooldown for a specific user.
 		:param member: The member to reset the cooldown (Optional).
