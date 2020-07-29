@@ -151,13 +151,12 @@ class Games(commands.Cog):
 		if not self.active:
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
 		perms = ctx.channel.permissions_for(ctx.author)
-		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
-			self.status = 'stop'
+		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:
 			guild = ctx.message.guild
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
 			if voice_client and voice_client.is_playing():
+				self.status = 'stop'
 				voice_client.stop()
-			await self.reset_bot_status()
 			await ctx.send("**Session ended!**")
 		else:
 			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
@@ -262,7 +261,7 @@ class Games(commands.Cog):
 	# Waits for a user response and checks whether it's right or wrong
 	async def get_language_response(self, member: discord.Member, channel, language: str) -> str:
 		if self.status == 'stop':
-			return
+			return await self.reset_bot_status()
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
 			return m.author.id == member.id and m.channel.id == channel.id
