@@ -153,15 +153,6 @@ class Games(commands.Cog):
 		perms = ctx.channel.permissions_for(ctx.author)
 		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
 			self.status = 'stop'
-			# self.questions.clear()
-			# self.round = 0
-			# self.lives = 3
-			# self.member_id = None
-			# self.wrong_answers = 0
-			# self.right_answers = 0
-			# self.active = False
-			# self.reproduced_languages.clear()
-			# self.status = 'normal'
 			guild = ctx.message.guild
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
 			if voice_client and voice_client.is_playing():
@@ -221,7 +212,7 @@ class Games(commands.Cog):
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=member.guild)
 
 		# Checks if the bot is in the same voice channel that the user
-		if voice.channel == voice_client.channel:
+		if voice and voice.channel == voice_client.channel:
 			# get a random language audio
 			path, language, audio = self.get_random_language()
 			# Plays the song
@@ -234,7 +225,8 @@ class Games(commands.Cog):
 
 		else:
 			# (to-do) send a message to a specific channel
-			await the_txt.send("**The bot is in a different voice channel!**")
+			await the_txt.send("**The player left the voice channel, so it's game over!**")
+			await self.reset_bot_status()
 
 
 	# Reproduces an audio by informing a path and a channel
@@ -270,7 +262,6 @@ class Games(commands.Cog):
 	# Waits for a user response and checks whether it's right or wrong
 	async def get_language_response(self, member: discord.Member, channel, language: str) -> str:
 		if self.status == 'stop':
-			#self.status = 'normal'
 			return
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
@@ -324,7 +315,6 @@ class Games(commands.Cog):
 
 			# Otherwise it ends the game and shows the score of the member
 			else:
-				#self.reproduced_languages = []
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
 				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 				return await self.make_score_image(self.questions, channel)
@@ -378,18 +368,7 @@ class Games(commands.Cog):
 			else:
 				await channel.send(f"<:zslothmonopoly:705452184602673163> **10łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
-		#cosmos = discord.utils.get(channel.guild.members, id=cosmos_id)
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
-		# self.questions.clear()
-		# self.round = 0
-		# self.lives = 3
-		# self.member_id = None
-		# self.wrong_answers = 0
-		# self.right_answers = 0
-		# self.active = False
-		# self.reproduced_languages.clear()
-		# self.status = 'normal'
-
 		await self.reset_bot_status()
 
 
