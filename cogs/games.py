@@ -62,8 +62,8 @@ class Games(commands.Cog):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
-		await self.download_update()
 		self.change_status.start()
+		await self.download_update()
 		channel = self.client.get_channel(language_jungle_txt_id)
 		self.ready = True
 		await channel.send("**I'm ready to play!**")
@@ -153,18 +153,20 @@ class Games(commands.Cog):
 		perms = ctx.channel.permissions_for(ctx.author)
 		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:		
 			self.status = 'stop'
-			self.round = 0
-			self.lives = 3
-			self.wrong_answers = 0
-			self.right_answers = 0
-			self.active = False
-			self.questions = {}
-			self.member_id = None
-			self.reproduced_languages = []
+			# self.questions.clear()
+			# self.round = 0
+			# self.lives = 3
+			# self.member_id = None
+			# self.wrong_answers = 0
+			# self.right_answers = 0
+			# self.active = False
+			# self.reproduced_languages.clear()
+			# self.status = 'normal'
 			guild = ctx.message.guild
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
 			if voice_client and voice_client.is_playing():
 				voice_client.stop()
+			await self.reset_bot_status()
 			await ctx.send("**Session ended!**")
 		else:
 			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
@@ -268,7 +270,7 @@ class Games(commands.Cog):
 	# Waits for a user response and checks whether it's right or wrong
 	async def get_language_response(self, member: discord.Member, channel, language: str) -> str:
 		if self.status == 'stop':
-			self.status = 'normal'
+			#self.status = 'normal'
 			return
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
@@ -378,15 +380,17 @@ class Games(commands.Cog):
 
 		#cosmos = discord.utils.get(channel.guild.members, id=cosmos_id)
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
-		self.questions.clear()
-		self.round = 0
-		self.lives = 3
-		self.member_id = None
-		self.wrong_answers = 0
-		self.right_answers = 0
-		self.active = False
-		self.reproduced_languages.clear()
-		self.status = 'normal'
+		# self.questions.clear()
+		# self.round = 0
+		# self.lives = 3
+		# self.member_id = None
+		# self.wrong_answers = 0
+		# self.right_answers = 0
+		# self.active = False
+		# self.reproduced_languages.clear()
+		# self.status = 'normal'
+
+		await self.reset_bot_status()
 
 
 
@@ -396,6 +400,18 @@ class Games(commands.Cog):
 		await mycursor.execute(f"UPDATE UserCurrency SET user_money = user_money + {money} WHERE user_id = {user_id}")
 		await db.commit()
 		await mycursor.close()
+
+
+	async def reset_bot_status(self):
+		self.questions.clear()
+		self.round = 0
+		self.lives = 3
+		self.member_id = None
+		self.wrong_answers = 0
+		self.right_answers = 0
+		self.active = False
+		self.reproduced_languages.clear()
+		self.status = 'normal'
 
 
 	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
