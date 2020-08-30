@@ -156,52 +156,52 @@ class Games(commands.Cog):
 	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def shop_update(self, ctx=None, rall: str = 'no'):
-	    '''
-	    (ADM) Downloads all shop images from the Google Drive.
-	    '''
-	    '''
-	    Downloads all shop images from the GoogleDrive and stores in the bot's folder
-	    :param ctx:
-	    :return:
-	    '''
+		'''
+		(ADM) Downloads all shop images from the Google Drive.
+		'''
+		'''
+		Downloads all shop images from the GoogleDrive and stores in the bot's folder
+		:param ctx:
+		:return:
+		'''
 		if rall.lower() == 'yes':
 			try:
 				os.removedirs('./sloth_custom_images')
 			except Exception:
 				pass
 
-	    all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
-	                   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
-	                   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
-	                   "hand": "1ggW3SDVzTSY5b8ybPimCsRWGSCaOBM8d",
-	                   "hud": "1-U6oOphdMNMPhPAjRJxJ2E6KIzIbewEh",
-	                   "badge": "1k8NRfwwLzIY5ALK5bUObAcrKr_eUlfjd",
-	                   "foot": "1Frfra1tQ49dKM6Dg4DIbrfYbtXadv9zj",
-	                   "head": "1Y9kSOayw4NDehbqfmvPXKZLrXnIjeblP"
-	                   }
+		all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
+					   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
+					   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
+					   "hand": "1ggW3SDVzTSY5b8ybPimCsRWGSCaOBM8d",
+					   "hud": "1-U6oOphdMNMPhPAjRJxJ2E6KIzIbewEh",
+					   "badge": "1k8NRfwwLzIY5ALK5bUObAcrKr_eUlfjd",
+					   "foot": "1Frfra1tQ49dKM6Dg4DIbrfYbtXadv9zj",
+					   "head": "1Y9kSOayw4NDehbqfmvPXKZLrXnIjeblP"
+					   }
 
-	    categories = ['background', 'sloth', 'body', 'hand', 'hud', 'badge', 'foot', 'head']
-	    for category in categories:
-	        try:
-	            os.makedirs(f'./sloth_custom_images/{category}')
-	            print(f"{category} folder made!")
-	        except FileExistsError:
-	            pass
+		categories = ['background', 'sloth', 'body', 'hand', 'hud', 'badge', 'foot', 'head']
+		for category in categories:
+			try:
+				os.makedirs(f'./sloth_custom_images/{category}')
+				print(f"{category} folder made!")
+			except FileExistsError:
+				pass
 
-	    for folder, folder_id in all_folders.items():
-	        files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
-	        download_path = f'./sloth_custom_images/{folder}'
-	        for file in files:
-	            isFile = os.path.isfile(f"{download_path}/{file['title']}")
-	            # print(isFile)
-	            if not isFile:
-	                # print(f"\033[34mItem name:\033[m \033[33m{file['title']:<35}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
-	                output_file = os.path.join(download_path, file['title'])
-	                temp_file = drive.CreateFile({'id': file['id']})
-	                temp_file.GetContentFile(output_file)
-	                # print(f"File '{file['title']}' downloaded!")
+		for folder, folder_id in all_folders.items():
+			files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
+			download_path = f'./sloth_custom_images/{folder}'
+			for file in files:
+				isFile = os.path.isfile(f"{download_path}/{file['title']}")
+				# print(isFile)
+				if not isFile:
+					# print(f"\033[34mItem name:\033[m \033[33m{file['title']:<35}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
+					output_file = os.path.join(download_path, file['title'])
+					temp_file = drive.CreateFile({'id': file['id']})
+					temp_file.GetContentFile(output_file)
+					# print(f"File '{file['title']}' downloaded!")
 
-	    if ctx:
+		if ctx:
 			return await ctx.send("**Download update is done!**")
 
 	# Leaves the channel
@@ -456,13 +456,13 @@ class Games(commands.Cog):
 		draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
 
 		# Sloth text printing
-	    draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
+		draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
 
 		# Status text printing
-	    draw.text((635, 220), f"{money}", (0, 0, 0), font=small)
-	    draw.text((635, 265), "(WIP)", (0, 0, 0), font=small)
-	    draw.text((635, 315), f"{self.right_answers}", (0, 0, 0), font=small)
-	    draw.text((635, 370), f"{self.wrong_answers}", (0, 0, 0), font=small)
+		draw.text((635, 220), f"{money}", (0, 0, 0), font=small)
+		draw.text((635, 265), "(WIP)", (0, 0, 0), font=small)
+		draw.text((635, 315), f"{self.right_answers}", (0, 0, 0), font=small)
+		draw.text((635, 370), f"{self.wrong_answers}", (0, 0, 0), font=small)
 
 		background.save('./language_jungle/Graphic/score_result.png')
 
