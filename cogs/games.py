@@ -57,13 +57,24 @@ class Games(commands.Cog):
 		self.reproduced_languages = []
 		self.ready = False
 		self.status = 'normal'
+		# Multiplayer attributes
+		self.multiplayer = {
+		'teams': {
+			'blue': [],
+			'red': []
+			},
+		'message_id': None
+		}
+		self.embed = None
 
 
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
 		self.change_status.start()
-		await self.download_update()
+		#await self.download_update()
+		await self.audio_update()
+		await self.shop_update()
 		channel = self.client.get_channel(language_jungle_txt_id)
 		self.ready = True
 		await channel.send("**I'm ready to play!**")
@@ -79,7 +90,7 @@ class Games(commands.Cog):
 	# Downloads all content for the Language Jungle game
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def download_update(self, ctx=None, rall: str = 'no'):
+	async def audio_update(self, ctx=None, rall: str = 'no'):
 		'''
 		Downloads all shop images from the GoogleDrive and stores in the bot's folder
 		:param ctx:
@@ -141,6 +152,53 @@ class Games(commands.Cog):
 		if ctx:
 			await ctx.send("**Download update complete!**")
 
+	# Google Drive commands
+	@commands.command()
+	@commands.has_permissions(administrator=True)
+	async def shop_update(self, ctx=None):
+	    '''
+	    (ADM) Downloads all shop images from the Google Drive.
+	    '''
+	    if ctx:
+	        await ctx.message.delete()
+	    '''
+	    Downloads all shop images from the GoogleDrive and stores in the bot's folder
+	    :param ctx:
+	    :return:
+	    '''
+	    all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
+	                   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
+	                   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
+	                   "hand": "1ggW3SDVzTSY5b8ybPimCsRWGSCaOBM8d",
+	                   "hud": "1-U6oOphdMNMPhPAjRJxJ2E6KIzIbewEh",
+	                   "badge": "1k8NRfwwLzIY5ALK5bUObAcrKr_eUlfjd",
+	                   "foot": "1Frfra1tQ49dKM6Dg4DIbrfYbtXadv9zj",
+	                   "head": "1Y9kSOayw4NDehbqfmvPXKZLrXnIjeblP"
+	                   }
+
+	    categories = ['background', 'sloth', 'body', 'hand', 'hud', 'badge', 'foot', 'head']
+	    for category in categories:
+	        try:
+	            os.makedirs(f'./sloth_custom_images/{category}')
+	            print(f"{category} folder made!")
+	        except FileExistsError:
+	            pass
+
+	    for folder, folder_id in all_folders.items():
+	        files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
+	        download_path = f'./sloth_custom_images/{folder}'
+	        for file in files:
+	            isFile = os.path.isfile(f"{download_path}/{file['title']}")
+	            # print(isFile)
+	            if not isFile:
+	                # print(f"\033[34mItem name:\033[m \033[33m{file['title']:<35}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
+	                output_file = os.path.join(download_path, file['title'])
+	                temp_file = drive.CreateFile({'id': file['id']})
+	                temp_file.GetContentFile(output_file)
+	                # print(f"File '{file['title']}' downloaded!")
+
+	    if ctx:
+	        return await ctx.send("**Download update is done!**", delete_after=5)
 
 	# Leaves the channel
 	@commands.command()
@@ -342,24 +400,68 @@ class Games(commands.Cog):
 			return im_square
 
 		small = ImageFont.truetype("./Nougat-ExtraBlack.ttf", 25)
-		background = Image.open("./language_jungle/Graphic/score.png")
+		#background = Image.open("./language_jungle/Graphic/score.png")
+		background = Image.open("./language_jungle/Graphic/Score_singleplayer.png")
 		height = 160
 
 		for k, v in questions.items():
 			try:
 				language = Image.open(f"./language_jungle/Graphic/answers/{v[0]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(language, (240, height), language.convert('RGBA'))
+			except Exception as error:
+				pass
+			try:
 				answer = Image.open(f"./language_jungle/Graphic/answers/{v[1]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(answer, (410, height), answer.convert('RGBA'))
 			except Exception as error:
-				print(k)
-			finally:
-				height += 35
+				pass
+
+			height += 35
+
+		# Get user
+		member = await self.client.fetch_user(self.member_id)
+
+		user_info = await self.get_user_currency(member.id)
+		if not user_info:
+			money = 0
+		else:
+			money = user_info[0][1]
+
+		# Sloth image request
+		sloth = Image.open(await self.get_user_specific_type_item(member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
+		body = Image.open(await self.get_user_specific_type_item(member.id, 'body')).resize((350, 250), Image.LANCZOS)
+		hand = Image.open(await self.get_user_specific_type_item(member.id, 'hand')).resize((350, 250), Image.LANCZOS)
+		foot = Image.open(await self.get_user_specific_type_item(member.id, 'foot')).resize((350, 250), Image.LANCZOS)
+		head = Image.open(await self.get_user_specific_type_item(member.id, 'head')).resize((350, 250), Image.LANCZOS)
+
+		#sloth = Image.open(f"sloth_custom_images/sloth/base_sloth.png") .resize((350, 250), Image.LANCZOS)
+		#body = Image.open(f"sloth_custom_images/body/slot_despacito.png") .resize((350, 250), Image.LANCZOS)
+		#hand = Image.open(f"sloth_custom_images/hand/chinese_flag.png") .resize((350, 250), Image.LANCZOS)
+
+
+		# Sloth image pasting
+		background.paste(sloth, (-65, 190), sloth.convert('RGBA'))
+		background.paste(body, (-65, 190), body.convert('RGBA'))
+		background.paste(hand, (-65, 190), hand.convert('RGBA'))
+		background.paste(foot, (-65, 190), foot.convert('RGBA'))
+		background.paste(head, (-65, 190), head.convert('RGBA'))
 
 		draw = ImageDraw.Draw(background)
-		draw.text((240, 130), "PC", (0, 196, 187), font=small)
-		draw.text((410, 130), "YOU", (0, 196, 187), font=small)
+
+		# Sloth text printing
+		draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
+
+		# Sloth text printing
+	    draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
+
+		# Status text printing
+	    draw.text((635, 220), f"{money}", (0, 0, 0), font=small)
+	    draw.text((635, 265), "(WIP)", (0, 0, 0), font=small)
+	    draw.text((635, 315), f"{self.right_answers}", (0, 0, 0), font=small)
+	    draw.text((635, 370), f"{self.wrong_answers}", (0, 0, 0), font=small)
+
 		background.save('./language_jungle/Graphic/score_result.png')
+
 		await channel.send(file=discord.File(path))
 		if self.lives:
 			try:
@@ -412,6 +514,33 @@ class Games(commands.Cog):
 				return await ctx.send(f"**{member.mention}'s cooldown has been reset!**")
 		else:
 			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
+
+	async def get_user_currency(self, user_id: int):
+		mycursor, db = await the_database2()
+		await mycursor.execute(f"SELECT * FROM UserCurrency WHERE user_id = {user_id}")
+		user_currency = await mycursor.fetchall()
+		await mycursor.close()
+		return user_currency
+
+	async def get_user_specific_type_item(self, user_id, item_type):
+		mycursor, db = await the_database2()
+		await mycursor.execute(
+			f"SELECT * FROM UserItems WHERE user_id = {user_id} and item_type = '{item_type}' and enable = 'equipped'")
+		spec_type_items = await mycursor.fetchall()
+		if len(spec_type_items) != 0:
+			registered_item = await self.get_specific_register_item(spec_type_items[0][1])
+			return f'./sloth_custom_images/{item_type}/{registered_item[0][0]}'
+		else:
+			default_item = f'./sloth_custom_images/{item_type}/base_{item_type}.png'
+			return default_item
+
+	async def get_specific_register_item(self, item_name: str):
+		mycursor, db = await the_database2()
+		await mycursor.execute(f"SELECT * FROM RegisteredItems WHERE item_name = '{item_name}'")
+		item = await mycursor.fetchall()
+		await mycursor.close()
+		return item
+
 
 
 def setup(client):
