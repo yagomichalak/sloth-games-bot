@@ -7,7 +7,7 @@ import os
 import random
 import asyncio
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from mysqldb import the_database
+from mysqldb import the_database, the_database2
 from time import sleep
 
 language_jungle_txt_id = 736734120998207589
@@ -169,7 +169,7 @@ class Games(commands.Cog):
 				os.removedirs('./sloth_custom_images')
 			except Exception:
 				pass
-				
+
 	    all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
 	                   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
 	                   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
