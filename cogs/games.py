@@ -92,7 +92,7 @@ class Games(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	async def audio_update(self, ctx=None, rall: str = 'no'):
 		'''
-		Downloads all shop images from the GoogleDrive and stores in the bot's folder
+		Downloads all audio images from the GoogleDrive and stores in the bot's folder
 		:param ctx:
 		:return:
 		'''
@@ -155,17 +155,21 @@ class Games(commands.Cog):
 	# Google Drive commands
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def shop_update(self, ctx=None):
+	async def shop_update(self, ctx=None, rall: str = 'no'):
 	    '''
 	    (ADM) Downloads all shop images from the Google Drive.
 	    '''
-	    if ctx:
-	        await ctx.message.delete()
 	    '''
 	    Downloads all shop images from the GoogleDrive and stores in the bot's folder
 	    :param ctx:
 	    :return:
 	    '''
+		if rall.lower() == 'yes':
+			try:
+				os.removedirs('./sloth_custom_images')
+			except Exception:
+				pass
+				
 	    all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
 	                   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
 	                   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
@@ -198,7 +202,7 @@ class Games(commands.Cog):
 	                # print(f"File '{file['title']}' downloaded!")
 
 	    if ctx:
-	        return await ctx.send("**Download update is done!**", delete_after=5)
+			return await ctx.send("**Download update is done!**")
 
 	# Leaves the channel
 	@commands.command()
