@@ -8,7 +8,7 @@ import random
 import asyncio
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from mysqldb import the_database, the_database2
-from time import sleep
+from time import sleep, time
 
 language_jungle_txt_id = 736734120998207589
 language_jungle_vc_id = 736734244839227464
@@ -57,6 +57,7 @@ class Games(commands.Cog):
 		self.reproduced_languages = []
 		self.ready = False
 		self.status = 'normal'
+		self.start_ts = None
 		# Multiplayer attributes
 		self.multiplayer = {
 		'teams': {
@@ -257,6 +258,7 @@ class Games(commands.Cog):
 		the_vc = discord.utils.get(member.guild.channels, id=language_jungle_vc_id)
 		self.active = True
 		self.member_id = member.id
+		self.start_ts = time()
 		await self.start_game(member, the_txt)
 
 	# Starts the Language Jungle game
@@ -458,9 +460,13 @@ class Games(commands.Cog):
 		# Sloth text printing
 		draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
 
+		# Get playtime
+		end_ts = time()
+		playtime = f"{(end_ts - self.start_ts)/60:.1f} mins"
+
 		# Status text printing
 		draw.text((635, 220), f"{money}", (0, 0, 0), font=small)
-		draw.text((635, 265), "(WIP)", (0, 0, 0), font=small)
+		draw.text((635, 265), f"{playtime}", (0, 0, 0), font=small)
 		draw.text((635, 315), f"{self.right_answers}", (0, 0, 0), font=small)
 		draw.text((635, 370), f"{self.wrong_answers}", (0, 0, 0), font=small)
 
@@ -498,6 +504,7 @@ class Games(commands.Cog):
 		self.active = False
 		self.reproduced_languages.clear()
 		self.status = 'normal'
+		self.start_ts = None
 
 
 	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
