@@ -694,13 +694,11 @@ class Games(commands.Cog):
 				else:
 					#self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
-					await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 					return await self.make_score_image(self.questions, channel)
 
 			# Otherwise it ends the game and shows the score of the member
 			else:
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
-				await channel.send(f"**__Your score__:\nRight answers: `{self.right_answers}`;\nWrong answers: `{self.wrong_answers}`.**")
 				return await self.make_score_image(self.questions, channel)
 
 
