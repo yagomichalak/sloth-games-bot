@@ -73,8 +73,8 @@ class Games(commands.Cog):
 		self.round_active = False
 		self.current_answer = None
 
-		# to-do: on_initialization
-		client.loop.create_task(self.async_init)
+		# on_initialization
+		client.loop.create_task(self.async_init())
 		
 	@commands.Cog.listener()
 	async def on_ready(self):
