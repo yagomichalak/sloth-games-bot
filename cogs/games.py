@@ -478,7 +478,7 @@ class Games(commands.Cog):
 			)
 		embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 		embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
-		embed.set_image(url='https://media1.tenor.com/images/de67143ed3bc9a83c93e27e0109b3dcb/tenor.gif?itemid=12800005')
+		embed.set_image(url='https://media1.tenor.com/images/81e68cca293ebd7656deec2bc582ef1c/tenor.gif?itemid=14484132')
 		embed.set_footer(text=f"Queue started by {ctx.author}")
 		msg = await ctx.send(embed=embed)
 		self.multiplayer['message_id'] = msg.id
