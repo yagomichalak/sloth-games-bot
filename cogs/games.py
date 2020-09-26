@@ -478,7 +478,7 @@ class Games(commands.Cog):
 			)
 		embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 		embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
-
+		embed.set_image(url='https://media1.tenor.com/images/de67143ed3bc9a83c93e27e0109b3dcb/tenor.gif?itemid=12800005')
 		embed.set_footer(text=f"Queue started by {ctx.author}")
 		msg = await ctx.send(embed=embed)
 		self.multiplayer['message_id'] = msg.id
@@ -555,7 +555,7 @@ class Games(commands.Cog):
 					except:
 						pass
 
-					draw.text((bx-150, by+20), f"{str(member.name)[:9]}", (0, 0, 0), 
+					draw.text((bx-150, by+15), f"{str(member.name)[:9]}", (0, 0, 0), 
 					font=small)
 					
 					by += 70
@@ -564,7 +564,7 @@ class Games(commands.Cog):
 						board.paste(pfp, (rx, ry), pfp)
 					except:
 						pass
-					draw.text((rx+60, ry+20), f"{str(member.name)[:9]}", (0, 0, 0), 
+					draw.text((rx+60, ry+15), f"{str(member.name)[:9]}", (0, 0, 0), 
 					font=small)
 					ry += 70
 	
@@ -954,11 +954,14 @@ class Games(commands.Cog):
 			path = './language_jungle/Graphic/red wins.png'
 			await self.make_multiplayer_score_image(winners, path)
 
-		else:
+		elif bluep > redp:
 			await self.txt.send("**🔵Blue team won🔵!**")
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
 			await self.make_multiplayer_score_image(winners, path)
+
+		else:
+			await self.txt.send("**It's a tie! No one wins!**")
 
 		await self.reset_bot_status()
 
