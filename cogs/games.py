@@ -72,6 +72,7 @@ class Games(commands.Cog):
 		self.multiplayer_active = False
 		self.round_active = False
 		self.current_answer = None
+		self.setting_up = False
 
 		# on_initialization
 		#self.client.loop.create_task(self.async_init())
@@ -96,10 +97,6 @@ class Games(commands.Cog):
 	# 	self.vc = await self.client.fetch_channel(language_jungle_vc_id)
 	# 	self.ready = True
 
-	@commands.command(hidden=True)
-	async def test(self, ctx):
-		await ctx.send([self.txt, self.vc])
-
 
 	@commands.Cog.listener()
 	async def on_reaction_add(self, reaction, member):
@@ -111,6 +108,8 @@ class Games(commands.Cog):
 		if not mid:
 			return
 		if not reaction.message.id == mid:
+			return
+		if not self.setting_up:
 			return
 		msg = await self.txt.fetch_message(mid)
 
@@ -153,6 +152,8 @@ class Games(commands.Cog):
 			return
 		if not reaction.message.id == mid:
 			return
+		if not self.setting_up:
+			return
 		msg = await self.txt.fetch_message(mid)
 
 		emj = str(reaction.emoji)
@@ -161,7 +162,6 @@ class Games(commands.Cog):
 			red_team = self.multiplayer['teams']['red'][0]
 			if member.id not in blue_team and member.id not in red_team:
 				return
-			print('e')
 			self.embed.clear_fields()
 			if emj == '🔵':
 				blue_team.remove(member.id)
@@ -169,8 +169,6 @@ class Games(commands.Cog):
 			elif emj == '🔴':
 				red_team.remove(member.id)
 
-			print(self.multiplayer['teams']['red'][0])
-			print(self.multiplayer['teams']['blue'][0])
 			self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 			self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
 			await msg.edit(embed=self.embed)
@@ -468,6 +466,7 @@ class Games(commands.Cog):
 		await self.reset_bot_status()
 		self.active = True
 		self.multiplayer_active = True
+		self.setting_up = True
 
 		embed = discord.Embed(
 			title="Setting up the Game...",
@@ -497,9 +496,10 @@ class Games(commands.Cog):
 			return await ctx.send(
 				"**Both teams must have at least 1 player to start a gaming session! Try again!**")
 
-		await self.txt.send(f"{count_red} red players and {count_blue} blue players !")
+		await self.txt.send(f"**🔴 {count_red} red players and {count_blue} blue players!🔵**")
+		self.setting_up = False
 		await self.make_multiplayer_image()
-		await asyncio.sleep(5)
+		await asyncio.sleep(10)
 		await self.start_multiplayer_game()
 	
 	async def start_multiplayer_game(self):
