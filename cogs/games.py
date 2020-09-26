@@ -481,6 +481,8 @@ class Games(commands.Cog):
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 		if not count_blue or not count_red:
+			self.active = False
+			self.multiplayer_active = False
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
 			return await ctx.send(
 				"**Both teams must have at least 1 player to start a gaming session! Try again!**")
