@@ -74,21 +74,31 @@ class Games(commands.Cog):
 		self.current_answer = None
 
 		# on_initialization
-		client.loop.create_task(self.async_init())
+		#self.client.loop.create_task(self.async_init())
+
+		
 		
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
 		self.change_status.start()
-		await self.audio_update()
-		await self.shop_update()
-		await channel.send("**I'm ready to play!**")
-
-	async def async_init(self):
 		channel = self.client.get_channel(language_jungle_txt_id)
 		self.txt = await self.client.fetch_channel(language_jungle_txt_id)
 		self.vc = await self.client.fetch_channel(language_jungle_vc_id)
+		await self.audio_update()
+		await self.shop_update()
 		self.ready = True
+		await self.txt.send("**I'm ready to play!**")
+
+	# async def async_init(self):
+	# 	channel = self.client.get_channel(language_jungle_txt_id)
+	# 	self.txt = await self.client.fetch_channel(language_jungle_txt_id)
+	# 	self.vc = await self.client.fetch_channel(language_jungle_vc_id)
+	# 	self.ready = True
+
+	@commands.command(hidden=True)
+	async def test(self, ctx):
+		await ctx.send([self.txt, self.vc])
 
 
 	@commands.Cog.listener()
