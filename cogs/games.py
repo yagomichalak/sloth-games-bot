@@ -83,7 +83,10 @@ class Games(commands.Cog):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
-		self.change_status.start()
+		try:
+			self.change_status.start()
+		except:
+			pass
 		channel = self.client.get_channel(language_jungle_txt_id)
 		self.txt = await self.client.fetch_channel(language_jungle_txt_id)
 		self.vc = await self.client.fetch_channel(language_jungle_vc_id)
@@ -165,10 +168,16 @@ class Games(commands.Cog):
 				return
 			self.embed.clear_fields()
 			if emj == '🔵':
-				blue_team.remove(member.id)
+				try:
+					blue_team.remove(member.id)
+				except:
+					pass
 
 			elif emj == '🔴':
-				red_team.remove(member.id)
+				try:
+					red_team.remove(member.id)
+				except:
+					pass
 
 			self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 			self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
@@ -558,7 +567,11 @@ class Games(commands.Cog):
 					except:
 						pass
 
-					draw.text((bx-150, by+15), f"{str(member.name)[:9]}", (0, 0, 0), 
+					try:
+						draw.text((bx-150, by+14), f"{str(member.name)[:9]}", (0, 0, 0), 
+					font=small)
+					except:
+						draw.text((bx-150, by+14), f"Player", (0, 0, 0), 
 					font=small)
 					
 					by += 70
@@ -567,7 +580,11 @@ class Games(commands.Cog):
 						board.paste(pfp, (rx, ry), pfp)
 					except:
 						pass
-					draw.text((rx+60, ry+15), f"{str(member.name)[:9]}", (0, 0, 0), 
+					try:
+						draw.text((rx+60, ry+14), f"{str(member.name)[:9]}", (0, 0, 0), 
+					font=small)
+					except:
+						draw.text((rx+60, ry+14), f"Player", (0, 0, 0), 
 					font=small)
 					ry += 70
 	
