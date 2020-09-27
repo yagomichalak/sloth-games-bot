@@ -567,24 +567,27 @@ class Games(commands.Cog):
 					except:
 						pass
 
-					try:
-						draw.text((bx-150, by+14), f"{str(member.name)[:9]}", (0, 0, 0), 
-					font=small)
-					except:
-						draw.text((bx-150, by+14), f"Player", (0, 0, 0), 
+
+					name = member.name
+					if name:
+						name = str(name)[:9]
+
+					draw.text((bx-150, by+14), f"{name}", (0, 0, 0), 
 					font=small)
 					
 					by += 70
+
 				elif team_k == 'red':
 					try:
 						board.paste(pfp, (rx, ry), pfp)
 					except:
 						pass
-					try:
-						draw.text((rx+60, ry+14), f"{str(member.name)[:9]}", (0, 0, 0), 
-					font=small)
-					except:
-						draw.text((rx+60, ry+14), f"Player", (0, 0, 0), 
+
+					name = member.name
+					if name:
+						name = str(name)[:9]
+
+					draw.text((rx+60, ry+14), f"{name}", (0, 0, 0), 
 					font=small)
 					ry += 70
 	
@@ -1037,7 +1040,12 @@ class Games(commands.Cog):
 				pass
 
 			name_cords = [cords[0]+55,  cords[1]+20]
-			draw.text(name_cords, f"{str(member.name)[:9]}", (0, 0, 0), font=small)
+
+			name = member.name
+			if name:
+				name = str(name)[:9]
+
+			draw.text(name_cords, f"{name}", (0, 0, 0), font=small)
 			try:
 				await self.update_user_money(member.id, 15)
 			except Exception:
