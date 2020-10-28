@@ -946,7 +946,10 @@ class Games(commands.Cog):
 		draw = ImageDraw.Draw(background)
 
 		# Sloth text printing
-		draw.text((50, 145), f"{member.name}", (0, 0, 0), font=small)
+		if name := member.name:
+			name = name[:9]
+
+		draw.text((50, 145), f"{name}", (0, 0, 0), font=small)
 
 		# Get playtime
 		end_ts = time()
@@ -1006,7 +1009,6 @@ class Games(commands.Cog):
 
 		draw = ImageDraw.Draw(background)
 		for i, winner in enumerate(winners):
-			print(i)
 			# Get user
 			member = await self.client.fetch_user(winner)
 			cords = next(coordinates)
@@ -1043,7 +1045,7 @@ class Games(commands.Cog):
 
 			name = member.name
 			if name:
-				name = str(name)[:9]
+				name = str(name)[:10]
 
 			draw.text(name_cords, f"{name}", (0, 0, 0), font=small)
 			try:
