@@ -9,7 +9,7 @@ def get_token():
 
 
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 client = commands.Bot(command_prefix='zg!', intents=intents)
 token = get_token()
 

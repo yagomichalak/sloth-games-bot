@@ -567,9 +567,8 @@ class Games(commands.Cog):
 					except:
 						pass
 
-
-					name = member.name
-					if name:
+					name = None
+					if member and member.name:
 						name = str(name)[:9]
 
 					draw.text((bx-150, by+14), f"{name}", (0, 0, 0), 
@@ -583,8 +582,8 @@ class Games(commands.Cog):
 					except:
 						pass
 
-					name = member.name
-					if name:
+					name = None
+					if member and member.name:
 						name = str(name)[:9]
 
 					draw.text((rx+60, ry+14), f"{name}", (0, 0, 0), 
