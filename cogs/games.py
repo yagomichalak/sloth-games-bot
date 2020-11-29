@@ -713,12 +713,18 @@ class Games(commands.Cog):
 				else:
 					#self.reproduced_languages = []
 					await channel.send(f"💪 **End of the game, you did it, {member.mention}!** 💪")
-					return await self.make_score_image(self.questions, channel)
+					try:
+						return await self.make_score_image(self.questions, channel)
+					except:
+						await self.reset_bot_status()
 
 			# Otherwise it ends the game and shows the score of the member
 			else:
 				await channel.send(f"☠️ **You lost, {member.mention}!** ☠️")
-				return await self.make_score_image(self.questions, channel)
+				try:
+					return await self.make_score_image(self.questions, channel)
+				except:
+					await self.reset_bot_status()
 
 
 	# (Multiplayer) Waits for a user response and checks whether it's right or wrong
@@ -808,7 +814,10 @@ class Games(commands.Cog):
 					f"**🔴__Red team__:\nRight answers: `{red_points}`.🔴**")
 				await channel.send(
 					f"**🔵__Blue team__:\nRight answers: `{blue_points}`.🔵**")
-				await self.check_winner(red_points, blue_points)
+				try:
+					await self.check_winner(red_points, blue_points)
+				except:
+					await self.reset_bot_status()
 
 	# (Multiplayer) Waits for a user response and checks whether it's right or wrong
 	async def get_multiplayer_language_response_before(self, teams, language: str, message):
@@ -873,7 +882,10 @@ class Games(commands.Cog):
 					f"**__Red team__:\nRight answers: `{red_points}`.**")
 				await channel.send(
 					f"**__Blue team__:\nRight answers: `{blue_points}`.**")
-				await self.check_winner(red_points, blue_points)
+				try:
+					await self.check_winner(red_points, blue_points)
+				except:
+					return await self.reset_bot_status()
 				
 
 	async def make_score_image(self, questions: dict, channel):
