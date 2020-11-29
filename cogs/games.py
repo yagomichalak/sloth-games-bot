@@ -7,10 +7,11 @@ import os
 import random
 import asyncio
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from mysqldb import the_database, the_database2
+from mysqldb import the_database
 from time import sleep, time
 import aiohttp
 from io import BytesIO
+import shutil
 
 language_jungle_txt_id = 736734120998207589
 language_jungle_vc_id = 736734244839227464
@@ -233,7 +234,7 @@ class Games(commands.Cog):
 		'''
 		if rall.lower() == 'yes':
 			try:
-				os.removedirs('./language_jungle')
+				shutil.rmtree('./language_jungle')
 			except Exception:
 				pass
 
@@ -291,17 +292,20 @@ class Games(commands.Cog):
 	# Google Drive commands
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def shop_update(self, ctx=None):
+	async def shop_update(self, ctx=None, rall: str = 'no'):
 		'''
 		(ADM) Downloads all shop images from the Google Drive.
 		'''
 		if ctx:
 			await ctx.message.delete()
-		'''
-		Downloads all shop images from the GoogleDrive and stores in the bot's folder
-		:param ctx:
-		:return:
-		'''
+
+		if rall.lower() == 'yes':
+			try:
+				shutil.rmtree('./sloth_custom_images')
+			except Exception:
+				pass
+
+
 		all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
 					   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
 					   "body": "1jYvG3vhL32-A0qDYn6lEG6fk_GKYDXD7",
@@ -1123,14 +1127,14 @@ class Games(commands.Cog):
 
 	# Database methods (3)
 	async def get_user_currency(self, user_id: int):
-		mycursor, db = await the_database2()
+		mycursor, db = await the_database()
 		await mycursor.execute(f"SELECT * FROM UserCurrency WHERE user_id = {user_id}")
 		user_currency = await mycursor.fetchall()
 		await mycursor.close()
 		return user_currency
 
 	async def get_user_specific_type_item(self, user_id, item_type):
-		mycursor, db = await the_database2()
+		mycursor, db = await the_database()
 		await mycursor.execute(
 			f"SELECT * FROM UserItems WHERE user_id = {user_id} and item_type = '{item_type}' and enable = 'equipped'")
 		spec_type_items = await mycursor.fetchall()
@@ -1142,7 +1146,7 @@ class Games(commands.Cog):
 			return default_item
 
 	async def get_specific_register_item(self, item_name: str):
-		mycursor, db = await the_database2()
+		mycursor, db = await the_database()
 		await mycursor.execute(f"SELECT * FROM RegisteredItems WHERE item_name = '{item_name}'")
 		item = await mycursor.fetchall()
 		await mycursor.close()
