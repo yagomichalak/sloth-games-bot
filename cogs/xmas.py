@@ -16,7 +16,7 @@ class Xmas(commands.Cog):
 		""" Class initializing method. """
 
 		self.client = client
-		self.xmas_channel_id: int = 736734120998207589
+		self.xmas_channel_id: int = 784529877038399528
 
 
 	@commands.Cog.listener()
@@ -40,9 +40,9 @@ class Xmas(commands.Cog):
 			timestamp=ctx.message.created_at
 		)
 		embed_text = ''
-		for top_user in top_ten:
+		for i, top_user in enumerate(top_ten):
 			user = self.client.get_user(top_user[0])
-			embed_text += f"#User: [{user}] | #Items: [{top_user[1]}]\n"
+			embed_text += f" {i+1} - #User: [{user}] | #Items: [{top_user[1]}]\n"
 		
 		embed.description = f"```css\n{embed_text}```"
 
@@ -95,7 +95,7 @@ class Xmas(commands.Cog):
 			except Exception as e:
 				print(e)
 
-			the_time = random.randint(5, 40)*60
+			the_time = random.randint(5, 15)*60
 			print("Time to next drop: " + str(the_time))
 			await asyncio.sleep(the_time)
 
