@@ -39,13 +39,14 @@ class Xmas(commands.Cog):
 			color=member.color,
 			timestamp=ctx.message.created_at
 		)
-		embed_text = ''
 		for i, top_user in enumerate(top_ten):
 			user = self.client.get_user(top_user[0])
-			embed_text += f" {i+1} - #User: [{user}] | #Items: [{top_user[1]}]\n"
+			embed.add_field(
+				name=f"{i+1} - {user}", 
+				value=f"```css\n#Items: [{top_user[1]}]```", 
+				inline=False
+			)
 		
-		embed.description = f"```css\n{embed_text}```"
-
 		you_user = await self._get_user_amount_of_items(member.id)
 		embed.set_thumbnail(url=ctx.guild.icon_url)
 		embed.set_footer(text=f"You: {you_user[1]} items")
