@@ -9,7 +9,6 @@ from itertools import cycle
 
 from extra.xmas import items, questions
 
-all_questions = cycle(random.shuffle(questions['all']))
 
 
 class Xmas(commands.Cog):
@@ -20,6 +19,7 @@ class Xmas(commands.Cog):
 
 		self.client = client
 		self.xmas_channel_id: int = 784529877038399528
+		self.all_questions = cycle(random.shuffle(questions['all']))
 
 
 	@commands.Cog.listener()
@@ -131,7 +131,7 @@ class Xmas(commands.Cog):
 		""" Gets a random question. """
 
 		# random_question = random.choice(questions['all'])
-		random_question = next(all_questions)
+		random_question = next(self.all_questions)
 
 		return random_question
 
