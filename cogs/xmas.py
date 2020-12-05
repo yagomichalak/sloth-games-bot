@@ -5,8 +5,11 @@ import random
 import asyncio
 from typing import List, Any, Union, Dict
 import os
+from itertools import cycle
 
 from extra.xmas import items, questions
+
+all_questions = cycle(random.shuffle(questions['all']))
 
 
 class Xmas(commands.Cog):
@@ -87,7 +90,7 @@ class Xmas(commands.Cog):
 
 				channel = await self.client.fetch_channel(self.xmas_channel_id)
 				om = await channel.send(embed=embed)
-				user_got_right = await self.get_user_response(embed, channel, question['answer'], om)
+				user_got_right = await self.get_user_response(embed, channel, question['answer'], om, item['emoji'])
 
 				if user_got_right:
 					await self._add_item_to_user(user_got_right.id, item['name'], item_type, item['emoji'])
@@ -127,7 +130,8 @@ class Xmas(commands.Cog):
 	async def get_random_question(self) -> Dict[str, str]:
 		""" Gets a random question. """
 
-		random_question = random.choice(questions['all'])
+		# random_question = random.choice(questions['all'])
+		random_question = next(all_questions)
 
 		return random_question
 
@@ -144,7 +148,7 @@ class Xmas(commands.Cog):
 		return images[item_type]
 
 
-	async def get_user_response(self, embed: discord.Embed, channel: discord.TextChannel, answer: str, om: discord.Message) -> List[Union[discord.Member, str, None]]:
+	async def get_user_response(self, embed: discord.Embed, channel: discord.TextChannel, answer: str, om: discord.Message, emoji: str) -> List[Union[discord.Member, str, None]]:
 		""" Gets user response for the question. 
 		:param embed: The embed of the question.
 		:param channel: The channel in which the question is. """
@@ -179,6 +183,7 @@ class Xmas(commands.Cog):
 			embed.description += f"""\n\n{member.mention} got it right, it was `{answer}`"""
 			embed.color = discord.Color.green()
 			await om.edit(embed=embed)
+			await channel.send(f"**{member.mention} that is correct! You have won 1 {emoji.lower()}!**")
 			return member
 					
 	# Database stuff
@@ -205,6 +210,7 @@ class Xmas(commands.Cog):
 			SELECT user_id, COUNT(*) AS count
 			FROM Xmas
 			GROUP BY user_id DESC
+			ORDER BY count
 			LIMIT 10
 			"""
 			)
