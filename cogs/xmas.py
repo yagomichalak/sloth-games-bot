@@ -21,7 +21,7 @@ class Xmas(commands.Cog):
 		self.xmas_channel_id: int = 784529877038399528
 		self.questions = questions['all'][:]
 		random.shuffle(self.questions)
-		self.all_questions = cycle(questions)
+		self.all_questions = cycle(self.questions)
 
 
 	@commands.Cog.listener()
