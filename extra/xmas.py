@@ -90,7 +90,8 @@ questions: Dict[str, List[Dict[str, str]]] = {
 
 		{"question": """What language is "Stern" published in?""" , "answer": """German"""},
 
-		{"question": """Which language is Afrikaans derived from? """, "answer": {"question": """Dutch"""}, "answer": },
+		{"question": """Which language is Afrikaans derived from? """, "answer": """Dutch"""},
+		
 		{"question": """In which country is the language Sinhalese spoken? """, "answer": """Sri Lanka"""},
 
 		{"question": """In Morse code, how is the letter 'S' represented? """, "answer": """..."""},
