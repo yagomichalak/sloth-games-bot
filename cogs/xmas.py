@@ -40,7 +40,7 @@ class Xmas(commands.Cog):
 		top_ten = await self._get_top_10_users()
 
 		embed = discord.Embed(
-			title="__Top 10 People w/ More Items__",
+			title="__Top 10 People with More Items__",
 			color=member.color,
 			timestamp=ctx.message.created_at
 		)
@@ -211,8 +211,8 @@ class Xmas(commands.Cog):
 		await mycursor.execute("""
 			SELECT user_id, COUNT(*) AS count
 			FROM Xmas
-			GROUP BY user_id DESC
-			ORDER BY count
+			GROUP BY user_id
+			ORDER BY count DESC
 			LIMIT 10
 			"""
 			)
