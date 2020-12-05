@@ -161,7 +161,7 @@ class Xmas(commands.Cog):
 
 			print(answer)
 			if m.channel.id == channel.id:
-				if m.content.lower() == answer.lower():
+				if m.content.lower().strip() == answer.lower().strip():
 					self.client.loop.create_task(m.add_reaction('✅'))
 					# self.client.loop.create_task(channel.send(f"**{m.author.mention} got it right!**"))
 					return True
