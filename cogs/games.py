@@ -91,8 +91,8 @@ class Games(commands.Cog):
 		channel = self.client.get_channel(language_jungle_txt_id)
 		self.txt = await self.client.fetch_channel(language_jungle_txt_id)
 		self.vc = await self.client.fetch_channel(language_jungle_vc_id)
-		await self.audio_update()
-		await self.shop_update()
+		# await self.audio_update()
+		# await self.shop_update()
 		self.ready = True
 		await self.txt.send("**I'm ready to play!**")
 

@@ -19,7 +19,9 @@ class Xmas(commands.Cog):
 
 		self.client = client
 		self.xmas_channel_id: int = 784529877038399528
-		# self.all_questions = cycle(random.shuffle(questions['all']))
+		self.questions = questions['all'][:]
+		random.shuffle(self.questions)
+		self.all_questions = cycle(questions)
 
 
 	@commands.Cog.listener()
@@ -130,8 +132,8 @@ class Xmas(commands.Cog):
 	async def get_random_question(self) -> Dict[str, str]:
 		""" Gets a random question. """
 
-		random_question = random.choice(questions['all'])
-		# random_question = next(self.all_questions)
+		# random_question = random.choice(questions['all'])
+		random_question = next(self.all_questions)
 
 		return random_question
 
