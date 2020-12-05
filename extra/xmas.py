@@ -80,7 +80,7 @@ questions: Dict[str, List[Dict[str, str]]] = {
 
 		{"question": """Hakuna matata (meaning no worries) was a phrase made popular around the world by the Lion King, but which language is it?""", "answer": """Swahili"""},
 
-		{"question": """In which country do locals use the phrase “not my circus, not my monkeys” when they mean “not my problem”?""", "answer": """Poland"""}
+		{"question": """In which country do locals use the phrase “not my circus, not my monkeys” when they mean “not my problem”?""", "answer": """Poland"""},
 
 		{"question": """From what language does the english word "Tornado" stems from?""", "answer": """Spanish"""},
 
