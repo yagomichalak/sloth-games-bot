@@ -18,7 +18,7 @@ class Xmas(commands.Cog):
 		""" Class initializing method. """
 
 		self.client = client
-		self.xmas_channel_id: int = 784529877038399528
+		self.xmas_channel_id: int = int(os.getenv('XMAS_CHANNEL_ID'))
 		self.questions = questions['all'][:]
 		random.shuffle(self.questions)
 		self.all_questions = cycle(self.questions)

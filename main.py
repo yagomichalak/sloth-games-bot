@@ -1,17 +1,20 @@
 import discord
 from discord.ext import commands
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-def get_token():
-	with open('token.txt', 'r') as f:
-		lines = f.readlines()
-		return lines[0].strip()
+# def get_token():
+# 	with open('token.txt', 'r') as f:
+# 		lines = f.readlines()
+# 		return lines[0].strip()
 
 
 
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='zg!', intents=intents)
-token = get_token()
+# token = get_token()
+token = os.getenv('TOKEN')
 
 @client.event
 async def on_ready():

@@ -5,6 +5,7 @@ mysqldb.py
 token.txt
 venv/
 audios/
+language_jungle/
 __pycache__/
 .idea/
 .vscode/

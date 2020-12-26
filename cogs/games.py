@@ -13,9 +13,9 @@ import aiohttp
 from io import BytesIO
 import shutil
 
-language_jungle_txt_id = 736734120998207589
-language_jungle_vc_id = 736734244839227464
-cosmos_id = 423829836537135108
+language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
+language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
+cosmos_id = int(os.getenv('COSMOS_ID'))
 
 gauth = GoogleAuth()
 # gauth.LocalWebserverAuth()
