@@ -9,4 +9,4 @@ language_jungle/
 __pycache__/
 .idea/
 .vscode/
-
+.env
