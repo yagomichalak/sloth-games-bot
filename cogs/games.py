@@ -16,6 +16,7 @@ import shutil
 language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
 language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
 cosmos_id = int(os.getenv('COSMOS_ID'))
+mod_role_id = int(os.getenv('MOD_ROLE_ID'))
 
 gauth = GoogleAuth()
 # gauth.LocalWebserverAuth()
@@ -351,7 +352,7 @@ class Games(commands.Cog):
 
 		perms = ctx.channel.permissions_for(ctx.author)
 		if self.multiplayer_active:
-			if perms.kick_members or perms.administrator:
+			if mod_role_id in [r.id for r in ctx.author.roles] or perms.administrator:
 				await self.reset_bot_status()
 				guild = ctx.message.guild
 				voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
@@ -362,7 +363,7 @@ class Games(commands.Cog):
 			return await ctx.send(f"**{ctx.author.mention}, you cannot end a multiplayer session just like that!**")
 
 
-		if perms.kick_members or perms.administrator or self.member_id == ctx.author.id:
+		if mod_role_id in [r.id for r in ctx.author.roles] or perms.administrator or self.member_id == ctx.author.id:
 			await self.reset_bot_status()
 			guild = ctx.message.guild
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
