@@ -996,17 +996,21 @@ class Games(commands.Cog):
 		await self.reset_bot_status()
 
 	async def check_winner(self, redp, bluep):
+		channel = self.txt
 		if redp > bluep:
 			await self.txt.send("**🔴Red team won!🔴**")
 			winners = self.multiplayer['teams']['red'][0]
 			path = './language_jungle/Graphic/red wins.png'
 			await self.make_multiplayer_score_image(winners, path)
+			await self.audio('language_jungle/SFX/Red wins.mp3', channel)
+
 
 		elif bluep > redp:
 			await self.txt.send("**🔵Blue team won🔵!**")
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
 			await self.make_multiplayer_score_image(winners, path)
+			await self.audio('language_jungle/SFX/Blue wins.mp3', channel)
 
 		else:
 			await self.txt.send("**It's a tie! No one wins!**")
