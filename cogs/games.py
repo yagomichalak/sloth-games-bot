@@ -502,6 +502,7 @@ class Games(commands.Cog):
 		await msg.add_reaction('🔴')
 		await msg.add_reaction('🔵')
 		self.embed = embed
+		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
 		await asyncio.sleep(60)
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
@@ -516,8 +517,11 @@ class Games(commands.Cog):
 		await self.txt.send(f"**🔴 {count_red} red players and {count_blue} blue players!🔵**")
 		self.setting_up = False
 		await self.make_multiplayer_image()
-		await asyncio.sleep(10)
-		await self.start_multiplayer_game()
+		# await asyncio.sleep(10)
+		#await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel)
+		# voice_client.play(audio_source, after=self.client.loop.create_task(self.start_multiplayer_game()))
+		await self.audio('language_jungle/SFX/Correct Answer.mp3', self.vc, self.start_multiplayer_game)
+		# await self.start_multiplayer_game()
 	
 	async def start_multiplayer_game(self):
 		the_txt = self.txt
@@ -640,7 +644,7 @@ class Games(commands.Cog):
 	
 
 	# Reproduces an audio by informing a path and a channel
-	async def audio(self, audio: str, channel):
+	async def audio(self, audio: str, channel, func = None):
 		voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=channel.guild)
 		if not voice_client:
 			await channel.connect()
@@ -648,7 +652,10 @@ class Games(commands.Cog):
 
 		audio_source = discord.FFmpegPCMAudio(audio)
 		if not voice_client.is_playing():
-			voice_client.play(audio_source, after=lambda e: print('finished'))
+			if not func:
+				voice_client.play(audio_source, after=lambda e: print('finished'))
+			else:
+				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(func()))
 
 	# Gets a random language audio
 	def get_random_language(self) -> str:
@@ -766,7 +773,7 @@ class Games(commands.Cog):
 						self.multiplayer['teams']['blue'][1] += 1
 						self.questions[self.round] = [None, str(language).lower()]
 						self.client.loop.create_task(
-							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel))
+							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc))
 						return True
 					else:
 						return False
@@ -787,7 +794,7 @@ class Games(commands.Cog):
 						self.multiplayer['teams']['red'][1] += 1
 						self.questions[self.round] = [str(language).lower(), None]
 						self.client.loop.create_task(
-							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel))
+							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc))
 						return True
 					else:
 						return False
@@ -803,7 +810,7 @@ class Games(commands.Cog):
 			await channel.send(f"🔴**Red and blue team🔵, you both took too long to answer!\nIt was {language}.**")
 			await channel.send("**NO POINTS FOR YOU**")
 			self.questions[self.round] = [str(language).lower(), None]
-			await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
+			await self.audio('language_jungle/SFX/Wrong Answer.mp3', self.vc)
 			self.round_active = False
 			self.current_answer = None
 
@@ -855,7 +862,7 @@ class Games(commands.Cog):
 				)
 				self.multiplayer['teams']['blue'][1] += 1
 				self.questions[self.round] = [None, str(language).lower()]
-				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel)
+				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
 
 		elif member.id in teams['red'][0]:
 
@@ -872,7 +879,7 @@ class Games(commands.Cog):
 				)
 				self.multiplayer['teams']['red'][1] += 1
 				self.questions[self.round] = [str(language).lower(), None]
-				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel)
+				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
 
 
 		if answer_right:
@@ -996,7 +1003,7 @@ class Games(commands.Cog):
 		await self.reset_bot_status()
 
 	async def check_winner(self, redp, bluep):
-		channel = self.txt
+		channel = self.vc
 		if redp > bluep:
 			await self.txt.send("**🔴Red team won!🔴**")
 			winners = self.multiplayer['teams']['red'][0]
