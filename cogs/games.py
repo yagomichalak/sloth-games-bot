@@ -574,7 +574,9 @@ class Games(commands.Cog):
 
 					name = None
 					if member and member.name:
-						name = str(name)[:9]
+						name = str(member.name)[:9]
+					elif member:
+						name = str(member)[:9]
 
 					draw.text((bx-150, by+14), f"{name}", (0, 0, 0), 
 					font=small)
@@ -589,7 +591,9 @@ class Games(commands.Cog):
 
 					name = None
 					if member and member.name:
-						name = str(name)[:9]
+						name = str(member.name)[:9]
+					elif member:
+						name = str(member)[:9]
 
 					draw.text((rx+60, ry+14), f"{name}", (0, 0, 0), 
 					font=small)
