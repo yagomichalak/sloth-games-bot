@@ -950,13 +950,15 @@ class Games(commands.Cog):
 
 		user_info = await self.get_user_currency(member.id)
 		if not user_info:
-			money = 0
+			return await channel.send(embed=discord.Embed(description=f"**You don't have an account yet, {member.mention}. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
+			# money = 0
 		else:
 			money = user_info[0][1]
 
 
 		# Sloth image request
-		sloth = Image.open(await self.get_user_specific_type_item(member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
+		sloth = Image.open(f'sloth_custom_images/sloth/{user_info[0][7].title()}.png').resize((350, 250), Image.LANCZOS)
+		# sloth = Image.open(await self.get_user_specific_type_item(member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
 		body = Image.open(await self.get_user_specific_type_item(member.id, 'body')).resize((350, 250), Image.LANCZOS)
 		hand = Image.open(await self.get_user_specific_type_item(member.id, 'hand')).resize((350, 250), Image.LANCZOS)
 		foot = Image.open(await self.get_user_specific_type_item(member.id, 'foot')).resize((350, 250), Image.LANCZOS)
@@ -1016,7 +1018,13 @@ class Games(commands.Cog):
 			await self.txt.send("**🔵Blue team won🔵!**")
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
-			await self.make_multiplayer_score_image(winners, path)
+			try:
+				await self.make_multiplayer_score_image(winners, path)
+			except Exception as e:
+				await channel.send("**Something went wrong when sending the Score picture!**")
+				print('='*20)
+				print(f"Score Picture Error: {e}")
+				print('='*20)
 			await self.audio('language_jungle/SFX/Blue wins.mp3', channel)
 
 		else:
@@ -1044,9 +1052,16 @@ class Games(commands.Cog):
 			member = await self.client.fetch_user(winner)
 			cords = next(coordinates)
 			sloth_cords = next(sloth_coordinates)
-
+			user_info = await self.get_user_currency(winner)
+			if not user_info:
+				await member.send(embed=discord.Embed(description=f"**You didn't appear in the Sloth Games score because you don't have an account yet. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
+				continue
+			elif user_info[0][7].lower() == 'default':
+				await member.send(embed=discord.Embed(description=f"**You didn't appear in the Sloth Games score because you didn't choose a Sloth Class yet. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
+				continue
 
 			# Sloth image request
+			sloth = Image.open(f'sloth_custom_images/sloth/{user_info[0][7].title()}.png').resize((350, 250), Image.LANCZOS)
 			sloth = Image.open(await self.get_user_specific_type_item(
 				member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
 			body = Image.open(await self.get_user_specific_type_item(
