@@ -1062,8 +1062,6 @@ class Games(commands.Cog):
 
 			# Sloth image request
 			sloth = Image.open(f'sloth_custom_images/sloth/{user_info[0][7].title()}.png').resize((350, 250), Image.LANCZOS)
-			sloth = Image.open(await self.get_user_specific_type_item(
-				member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
 			body = Image.open(await self.get_user_specific_type_item(
 				member.id, 'body')).resize((350, 250), Image.LANCZOS)
 			hand = Image.open(await self.get_user_specific_type_item(
