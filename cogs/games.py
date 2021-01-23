@@ -950,6 +950,7 @@ class Games(commands.Cog):
 
 		user_info = await self.get_user_currency(member.id)
 		if not user_info:
+			await self.reset_bot_status()
 			return await channel.send(embed=discord.Embed(description=f"**You don't have an account yet, {member.mention}. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
 			# money = 0
 		else:
