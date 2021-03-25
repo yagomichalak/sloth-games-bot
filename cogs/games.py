@@ -449,7 +449,7 @@ class Games(commands.Cog):
 			await self.reset_bot_status()
 
 
-	@commands.command(aliases=['pmp', 'mp', 'multiplayer'])
+	@commands.command(aliases=['pmp', 'mp', 'multiplayer', 'zugumupu'])
 	@commands.cooldown(1, 360, type=commands.BucketType.guild)
 	async def play_multiplayer_language(self, ctx):
 		'''
