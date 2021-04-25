@@ -84,7 +84,6 @@ class Games(commands.Cog):
 		#self.client.loop.create_task(self.async_init())
 
 
-
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
