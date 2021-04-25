@@ -699,6 +699,8 @@ class Games(commands.Cog):
 					if not str(language) in self.reproduced_languages:
 						self.reproduced_languages.append(str(accent))
 						return path, accent, audio
+					else:
+						continue
 			except Exception:
 				print('try harder')
 				continue
