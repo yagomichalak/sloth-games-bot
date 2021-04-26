@@ -79,7 +79,8 @@ class Games(commands.Cog):
 		# when playing the accents game, this variable holds the language, otherwise - empty string
 		self.language = ''
 		# this variable holds the available languages for the accents game (lowercase!)
-		self.SUPPORTED_LANGUAGES = ('english', 'spanish')
+		self.CLASSIC_MODE = ''
+		self.SUPPORTED_LANGUAGES = ('english', 'spanish', self.CLASSIC_MODE)
 		# on_initialization
 		#self.client.loop.create_task(self.async_init())
 
@@ -384,9 +385,13 @@ class Games(commands.Cog):
 		#await self.txt.send("**Round ended!**")
 
 	# in accent mode, this function sets the language
-	# if the language is not supported, returns false, otherwise true
+	# if the language is not supported, it sends a message
+	# to the user and returns false
+	# otherwise it returns true
+	# in classic mode (i.e. guess the language)
+	# this function sets the language to self.CLASSIC_MODE
 	async def set_language(self, ctx, language: str):
-		if language != '' and language.lower() not in self.SUPPORTED_LANGUAGES:
+		if language.lower() not in self.SUPPORTED_LANGUAGES:
 			await ctx.send(f"**{ctx.author.mention}, this language is not supported yet."
 								  f" If you would like to add this language to the accents game, "
 								  f"send an audio to `Cosmos △#7757`**")
