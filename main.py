@@ -27,18 +27,20 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You can't do that!")
 
-    if isinstance(error, commands.MissingRequiredArgument):
+    elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Please, inform all parameters!')
 
-    
-    if isinstance(error, commands.CommandOnCooldown):
+    elif isinstance(error, commands.NotOwner):
+        await ctx.send("You're not the bot's owner!")
+
+    elif isinstance(error, commands.CommandOnCooldown):
         secs = error.retry_after
         if int(secs) >= 60:
             await ctx.send(f"You are on cooldown! Try again in {secs/60:.1f} minutes!")
         else:
             await ctx.send(error)
 
-    if isinstance(error, commands.MissingAnyRole):
+    elif isinstance(error, commands.MissingAnyRole):
         await ctx.send(error)
 
     print(error)
