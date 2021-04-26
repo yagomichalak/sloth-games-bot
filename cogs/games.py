@@ -682,15 +682,15 @@ class Games(commands.Cog):
 	def get_random_language(self, language) -> str:
 		while True:
 			try:
-				if self.language == '':
+				if self.language == self.CLASSIC_MODE:
 					path = './language_jungle/Speech'
 					all_languages = os.listdir(path)
 					language = random.choice(all_languages)
 					all_audios = os.listdir(f"{path}/{language}")
 					audio = random.choice(all_audios)
 					path = f"{path}/{language}/{audio}"
-					if not str(language) in self.reproduced_languages:
-						self.reproduced_languages.append(str(language))
+					if language not in self.reproduced_languages:
+						self.reproduced_languages.append(language)
 						return path, language, audio
 					else:
 						continue
@@ -700,8 +700,8 @@ class Games(commands.Cog):
 					accent = random.choice(all_accents)
 					all_audios = os.listdir(f"{path}/{accent}")
 					audio = random.choice(all_audios)
-					if not str(language) in self.reproduced_languages:
-						self.reproduced_languages.append(str(accent))
+					if accent not in self.reproduced_languages:
+						self.reproduced_languages.append(accent)
 						return path, accent, audio
 					else:
 						continue
