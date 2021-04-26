@@ -6,3 +6,4 @@ gTTS==2.2.1
 discord==1.0.1
 Pillow==8.0.1
 python-dotenv==0.15.0
+treelib==1.6.1
