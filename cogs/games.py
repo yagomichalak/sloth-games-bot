@@ -1182,6 +1182,29 @@ class Games(commands.Cog):
 		await mycursor.close()
 		return item
 
+	@commands.command(aliases=['audios', 'languages', 'smpls', 'langs'])
+	@commands.cooldown(1, 5, commands.BucketType.user)
+	async def samples(self, ctx) -> None:
+		""" Shows how many audio samples and languages we currently have in The Language Jungle game. """
+
+		path = './language_jungle/Speech'
+		languages = [folder for folder in os.listdir(path)]
+		audios = [1 for language in languages for audio in os.listdir(f"{path}/{language}")]
+
+		embed = discord.Embed(
+			title="__Samples__",
+			description=f"We currently have **`{sum(audios)}`** different audio samples grouped into **`{len(languages)}`** different languages respectively.",
+			color=ctx.author.color,
+			timestamp=ctx.message.created_at
+		)
+		embed.set_author(name=self.client.user, icon_url=self.client.user.avatar_url)
+		embed.set_thumbnail(url=ctx.guild.icon_url)
+		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.avatar_url)
+		await ctx.send(embed=embed)
+
+
+
+
 
 def setup(client):
 	client.add_cog(Games(client))
