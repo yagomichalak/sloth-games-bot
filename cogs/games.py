@@ -695,7 +695,7 @@ class Games(commands.Cog):
 					else:
 						continue
 				else:
-					path = './language_jungle/Speech/Accents/{self.language}'
+					path = './language_jungle/Speech/{self.language}/Accents'
 					all_accents = os.listdir(path)
 					accent = random.choice(all_accents)
 					all_audios = os.listdir(f"{path}/{accent}")
