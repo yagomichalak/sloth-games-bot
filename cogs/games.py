@@ -76,12 +76,15 @@ class Games(commands.Cog):
 		self.round_active = False
 		self.current_answer = None
 		self.setting_up = False
-
+		# when playing the accents game, this variable holds the language, otherwise - empty string
+		self.language = ''
+		# this variable holds the available languages for the accents game (lowercase!)
+		self.CLASSIC_MODE = ''
+		self.SUPPORTED_LANGUAGES = ('english', 'spanish', self.CLASSIC_MODE)
 		# on_initialization
 		#self.client.loop.create_task(self.async_init())
 
-		
-		
+
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print('Games cog is online!')
@@ -142,7 +145,7 @@ class Games(commands.Cog):
 			self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 			self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
 			await msg.edit(embed=self.embed)
-			
+
 		else:
 			await msg.remove_reaction(reaction, member)
 
@@ -150,7 +153,7 @@ class Games(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_reaction_remove(self, reaction, member):
-		
+
 		if not member or member.bot:
 			return
 		mid = self.multiplayer['message_id']
@@ -200,7 +203,7 @@ class Games(commands.Cog):
 		channel = message.channel
 		if channel.id != self.txt.id:
 			return
-		
+
 		# Checks if it's an active player
 		red = self.multiplayer['teams']['red'][0]
 		blue = self.multiplayer['teams']['blue'][0]
@@ -381,13 +384,29 @@ class Games(commands.Cog):
 			voice_client.stop()
 		#await self.txt.send("**Round ended!**")
 
+	# in accent mode, this function sets the language
+	# if the language is not supported, it sends a message
+	# to the user and returns false
+	# otherwise it returns true
+	# in classic mode (i.e. guess the language)
+	# this function sets the language to self.CLASSIC_MODE
+	async def set_language(self, ctx, language: str):
+		if language.lower() not in self.SUPPORTED_LANGUAGES:
+			await ctx.send(f"**{ctx.author.mention}, this language is not supported yet."
+								  f" If you would like to add this language to the accents game, "
+								  f"send an audio to `Cosmos △#7757`**")
+			return False
+		self.language = language
+		return True
 
 	@commands.cooldown(1, 1800, type=commands.BucketType.user)
 	@commands.command(aliases=['language', 'language jungle', 'jungle', 'lj', 'play', 'p'])
-	async def play_language(self, ctx):
+	async def play_language(self, ctx, *, language):
 		'''
 		Plays the Language Jungle.
 		'''
+		if not await self.set_language(ctx, language):
+			return
 		member = ctx.author
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
@@ -419,7 +438,7 @@ class Games(commands.Cog):
 
 	# Starts the Language Jungle game
 	async def start_game(self, member: discord.Member, the_txt):
-		
+
 		voice = member.voice
 		voice_client = member.guild.voice_client
 
@@ -451,10 +470,12 @@ class Games(commands.Cog):
 
 	@commands.command(aliases=['pmp', 'mp', 'multiplayer', 'zugumupu'])
 	@commands.cooldown(1, 360, type=commands.BucketType.guild)
-	async def play_multiplayer_language(self, ctx):
+	async def play_multiplayer_language(self, ctx, *, language):
 		'''
 		Plays the Language Jungle (Multiplayer).
 		'''
+		if not await self.set_language(ctx, language):
+			return
 		member = ctx.author
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
@@ -522,7 +543,7 @@ class Games(commands.Cog):
 		# voice_client.play(audio_source, after=self.client.loop.create_task(self.start_multiplayer_game()))
 		await self.audio('language_jungle/SFX/Correct Answer.mp3', self.vc, self.start_multiplayer_game)
 		# await self.start_multiplayer_game()
-	
+
 	async def start_multiplayer_game(self):
 		the_txt = self.txt
 		# Starts the game
@@ -546,7 +567,7 @@ class Games(commands.Cog):
 			self.round += 1
 			self.round_active = True
 			await the_txt.send(f"**`ROUND {self.round}`**")
-			voice_client.play(audio_source, 
+			voice_client.play(audio_source,
 			after=lambda e: self.client.loop.create_task(
 				self.get_multiplayer_language_response_after(
 					self.multiplayer['teams'], language)))
@@ -582,9 +603,9 @@ class Games(commands.Cog):
 					elif member:
 						name = str(member)[:9]
 
-					draw.text((bx-150, by+14), f"{name}", (0, 0, 0), 
+					draw.text((bx-150, by+14), f"{name}", (0, 0, 0),
 					font=small)
-					
+
 					by += 70
 
 				elif team_k == 'red':
@@ -599,11 +620,11 @@ class Games(commands.Cog):
 					elif member:
 						name = str(member)[:9]
 
-					draw.text((rx+60, ry+14), f"{name}", (0, 0, 0), 
+					draw.text((rx+60, ry+14), f"{name}", (0, 0, 0),
 					font=small)
 					ry += 70
-	
-		
+
+
 		board.save('language_jungle/multiplayer_session.png', 'png', quality=90)
 		await self.txt.send(file=discord.File('language_jungle/multiplayer_session.png'))
 
@@ -641,7 +662,7 @@ class Games(commands.Cog):
 		im_thumb = mask_circle_transparent(im_square, 4)
 		#im_thumb.save('png/user_pfp.png', 'png', quality=90)
 		return im_thumb
-	
+
 
 	# Reproduces an audio by informing a path and a channel
 	async def audio(self, audio: str, channel, func = None):
@@ -658,20 +679,32 @@ class Games(commands.Cog):
 				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(func()))
 
 	# Gets a random language audio
-	def get_random_language(self) -> str:
+	def get_random_language(self, language) -> str:
 		while True:
 			try:
-				path = './language_jungle/Speech'
-				all_languages = os.listdir(path)
-				language = random.choice(all_languages)
-				all_audios = os.listdir(f"{path}/{language}")
-				audio = random.choice(all_audios)
-				path = f"{path}/{language}/{audio}"
-				if not str(language) in self.reproduced_languages:
-					self.reproduced_languages.append(str(language))
-					return path, language, audio
+				if self.language == self.CLASSIC_MODE:
+					path = './language_jungle/Speech'
+					all_languages = os.listdir(path)
+					language = random.choice(all_languages)
+					all_audios = os.listdir(f"{path}/{language}")
+					audio = random.choice(all_audios)
+					path = f"{path}/{language}/{audio}"
+					if language not in self.reproduced_languages:
+						self.reproduced_languages.append(language)
+						return path, language, audio
+					else:
+						continue
 				else:
-					continue
+					path = './language_jungle/Speech/{self.language}/Accents'
+					all_accents = os.listdir(path)
+					accent = random.choice(all_accents)
+					all_audios = os.listdir(f"{path}/{accent}")
+					audio = random.choice(all_audios)
+					if accent not in self.reproduced_languages:
+						self.reproduced_languages.append(accent)
+						return path, accent, audio
+					else:
+						continue
 			except Exception:
 				print('try harder')
 				continue
@@ -718,13 +751,13 @@ class Games(commands.Cog):
 				await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		finally:
 			# Checks if the member has remaining lives
-			if self.lives > 0:				
+			if self.lives > 0:
 				# Restarts the game if it's not the last round
 				if self.round < 10:
 					await channel.send(f"**New round in 10 seconds...**")
 					await asyncio.sleep(10)
 					return await self.start_game(member, channel)
-				
+
 				# Otherwise it ends the game and shows the score of the member
 				else:
 					#self.reproduced_languages = []
@@ -762,7 +795,7 @@ class Games(commands.Cog):
 					if str(m.content).lower() == str(language).lower():
 						self.round_active = False
 						self.current_answer = None
-						
+
 						self.client.loop.create_task(self.stop_round(m.guild))
 
 						self.client.loop.create_task(
@@ -820,7 +853,7 @@ class Games(commands.Cog):
 				await channel.send(f"**New round in 10 seconds...**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
-			
+
 			# Otherwise it ends the game and shows the score of the teams
 			else:
 				blue_points = self.multiplayer['teams']['blue'][1]
@@ -854,7 +887,7 @@ class Games(commands.Cog):
 				answer_right = True
 				self.round_active = False
 				self.current_answer = None
-				
+
 				await self.stop_round(m.guild)
 
 				await self.txt.send(
@@ -888,7 +921,7 @@ class Games(commands.Cog):
 				await channel.send(f"**New round in 10 seconds...**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
-			
+
 			# Otherwise it ends the game and shows the score of the teams
 			else:
 				blue_points = self.multiplayer['teams']['blue'][1]
@@ -902,7 +935,7 @@ class Games(commands.Cog):
 					await self.check_winner(red_points, blue_points)
 				except:
 					return await self.reset_bot_status()
-				
+
 
 	async def make_score_image(self, questions: dict, channel):
 		path = './language_jungle/Graphic/score_result.png'
@@ -934,7 +967,7 @@ class Games(commands.Cog):
 				background.paste(language, (240, height), language.convert('RGBA'))
 			except Exception as error:
 				pass
-			
+
 			try:
 				answer = Image.open(f"./language_jungle/Graphic/answers/{v[1]}.png").resize((120, 40), Image.LANCZOS)
 				background.paste(answer, (410, height), answer.convert('RGBA'))
@@ -944,7 +977,7 @@ class Games(commands.Cog):
 
 			height += 35
 
-		
+
 		# Get user
 		member = await self.client.fetch_user(self.member_id)
 
@@ -1038,13 +1071,13 @@ class Games(commands.Cog):
 		channel = self.txt
 
 		#232, 595 326765585461411851 , [356, 970]
-		coordinates = iter([[316, 482], [128, 510], [498, 512], [2, 425], 
+		coordinates = iter([[316, 482], [128, 510], [498, 512], [2, 425],
 		[614, 402]])
-		sloth_coordinates = iter([[226, 284], [78, 312], [378, 314], [-78, 227], 
+		sloth_coordinates = iter([[226, 284], [78, 312], [378, 314], [-78, 227],
 		[524, 204]])
 
 		small = ImageFont.truetype("./Nougat-ExtraBlack.ttf", 25)
-		
+
 		background = Image.open(image_path)
 
 		draw = ImageDraw.Draw(background)
@@ -1102,7 +1135,7 @@ class Games(commands.Cog):
 		score_path = './language_jungle/Graphic/multiplayer_score_result.png'
 		background.save(score_path)
 		await channel.send(file=discord.File(score_path))
-		
+
 
 	# Database method (1)
 	async def update_user_money(self, user_id: int, money: int):
@@ -1133,7 +1166,7 @@ class Games(commands.Cog):
 				},
 			'message_id': None
 		}
-
+		self.language = ''
 
 	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
 	@commands.has_permissions(administrator=True)
