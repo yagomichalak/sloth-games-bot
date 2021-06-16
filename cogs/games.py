@@ -1166,21 +1166,14 @@ class Games(commands.Cog):
 	async def get_user_specific_type_item(self, user_id, item_type):
 		mycursor, db = await the_database()
 		await mycursor.execute(
-			f"SELECT * FROM UserItems WHERE user_id = {user_id} and item_type = '{item_type}' and enable = 'equipped'")
-		spec_type_items = await mycursor.fetchall()
-		if len(spec_type_items) != 0:
-			registered_item = await self.get_specific_register_item(spec_type_items[0][1])
-			return f'./sloth_custom_images/{item_type}/{registered_item[0][0]}'
-		else:
-			default_item = f'./sloth_custom_images/{item_type}/base_{item_type}.png'
-			return default_item
-
-	async def get_specific_register_item(self, item_name: str):
-		mycursor, db = await the_database()
-		await mycursor.execute(f"SELECT * FROM RegisteredItems WHERE item_name = '{item_name}'")
-		item = await mycursor.fetchall()
+			f"SELECT item_name, image_name FROM UserItems WHERE user_id = {user_id} and item_type = '{item_type}' and enable = 'equipped'")
+		spec_type_items = await mycursor.fetchone()
 		await mycursor.close()
-		return item
+		if spec_type_items and spec_type_items[1]:
+			return f'./sloth_custom_images/{item_type}/{spec_type_items[1]}'
+
+		else:
+			return f'./sloth_custom_images/{item_type}/base_{item_type}.png'
 
 	@commands.command(aliases=['audios', 'languages', 'smpls', 'langs'])
 	@commands.cooldown(1, 5, commands.BucketType.user)
