@@ -949,6 +949,7 @@ class Games(commands.Cog):
 		member = await self.client.fetch_user(self.member_id)
 
 		user_info = await self.get_user_currency(member.id)
+		sloth_profile = await self.get_sloth_profile(member.id)
 		if not user_info:
 			await self.reset_bot_status()
 			return await channel.send(embed=discord.Embed(description=f"**You don't have an account yet, {member.mention}. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
@@ -958,7 +959,7 @@ class Games(commands.Cog):
 
 
 		# Sloth image request
-		sloth = Image.open(f'sloth_custom_images/sloth/{user_info[0][7].title()}.png').resize((350, 250), Image.LANCZOS)
+		sloth = Image.open(f'sloth_custom_images/sloth/{sloth_profile[1].title()}.png').resize((350, 250), Image.LANCZOS)
 		# sloth = Image.open(await self.get_user_specific_type_item(member.id, 'sloth')).resize((350, 250), Image.LANCZOS)
 		body = Image.open(await self.get_user_specific_type_item(member.id, 'body')).resize((350, 250), Image.LANCZOS)
 		hand = Image.open(await self.get_user_specific_type_item(member.id, 'hand')).resize((350, 250), Image.LANCZOS)
@@ -1160,6 +1161,13 @@ class Games(commands.Cog):
 		mycursor, db = await the_database()
 		await mycursor.execute(f"SELECT * FROM UserCurrency WHERE user_id = {user_id}")
 		user_currency = await mycursor.fetchall()
+		await mycursor.close()
+		return user_currency
+
+	async def get_sloth_profile(self, user_id: int):
+		mycursor, db = await the_database()
+		await mycursor.execute("SELECT * FROM SlothProfile WHERE user_id = %s", (user_id,))
+		user_currency = await mycursor.fetchone()
 		await mycursor.close()
 		return user_currency
 
