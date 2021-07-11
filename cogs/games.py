@@ -950,7 +950,7 @@ class Games(commands.Cog):
 
 		user_info = await self.get_user_currency(member.id)
 		sloth_profile = await self.get_sloth_profile(member.id)
-		if not user_info:
+		if not user_info or not sloth_profile:
 			await self.reset_bot_status()
 			return await channel.send(embed=discord.Embed(description=f"**You don't have an account yet, {member.mention}. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
 			# money = 0
@@ -1054,16 +1054,16 @@ class Games(commands.Cog):
 			member = await self.client.fetch_user(winner)
 			cords = next(coordinates)
 			sloth_cords = next(sloth_coordinates)
-			user_info = await self.get_user_currency(winner)
-			if not user_info:
+			sloth_profile = await self.get_sloth_profile(winner)
+			if not sloth_profile:
 				await member.send(embed=discord.Embed(description=f"**You didn't appear in the Sloth Games score because you don't have an account yet. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
 				continue
-			elif user_info[0][7].lower() == 'default':
+			elif sloth_profile[1].lower() == 'default':
 				await member.send(embed=discord.Embed(description=f"**You didn't appear in the Sloth Games score because you didn't choose a Sloth Class yet. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
 				continue
 
 			# Sloth image request
-			sloth = Image.open(f'sloth_custom_images/sloth/{user_info[0][7].title()}.png').resize((350, 250), Image.LANCZOS)
+			sloth = Image.open(f'sloth_custom_images/sloth/{sloth_profile[1].title()}.png').resize((350, 250), Image.LANCZOS)
 			body = Image.open(await self.get_user_specific_type_item(
 				member.id, 'body')).resize((350, 250), Image.LANCZOS)
 			hand = Image.open(await self.get_user_specific_type_item(
