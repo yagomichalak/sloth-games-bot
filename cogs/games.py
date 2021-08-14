@@ -533,7 +533,12 @@ class Games(commands.Cog):
 			await self.txt.send("**The round starts now!**")
 			self.round += 1
 			self.round_active = True
-			await the_txt.send(f"**`ROUND {self.round}`**")
+			embed = discord.Embed(
+					title=f"__`ROUND {self.round}`__",
+					description="The round starts now.",
+					color=discord.Color.green()
+				)
+			await the_txt.send(embed=embed)
 			voice_client.play(audio_source, 
 			after=lambda e: self.client.loop.create_task(
 				self.get_multiplayer_language_response_after(
