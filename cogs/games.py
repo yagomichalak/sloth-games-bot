@@ -1,23 +1,29 @@
 import discord
+from discord import user
 from discord.ext import commands, tasks
+
 from gtts import gTTS
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from mysqldb import the_database
+
 import os
+import shutil
 import random
 import asyncio
-from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from mysqldb import the_database
-from time import sleep, time
 import aiohttp
+
+from typing import List, Optional, Callable, Any, Union
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
+from time import sleep, time
 from io import BytesIO
-import shutil
 
 language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
 language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
 cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
 
+# Starts the GoogleDrive connection
 gauth = GoogleAuth()
 # gauth.LocalWebserverAuth()
 gauth.LoadCredentialsFile("mycreds.txt")
@@ -45,11 +51,9 @@ gauth.SaveCredentialsFile("mycreds.txt")
 drive = GoogleDrive(gauth)
 
 class Games(commands.Cog):
-	'''
-	Some games related commands.
-	'''
+	""" Category for game related commands. """
 
-	def __init__(self, client):
+	def __init__(self, client: commands.Bot) -> None:
 		self.client = client
 		self.session = aiohttp.ClientSession()
 		self.round = 0
@@ -76,38 +80,24 @@ class Games(commands.Cog):
 		self.round_active = False
 		self.current_answer = None
 		self.setting_up = False
-
-		# on_initialization
-		#self.client.loop.create_task(self.async_init())
-
-		
 		
 	@commands.Cog.listener()
-	async def on_ready(self):
+	async def on_ready(self) -> None:
 		print('Games cog is online!')
 		try:
 			self.change_status.start()
 		except:
 			pass
-		channel = self.client.get_channel(language_jungle_txt_id)
+
 		self.txt = await self.client.fetch_channel(language_jungle_txt_id)
 		self.vc = await self.client.fetch_channel(language_jungle_vc_id)
-		# await self.audio_update()
-		# await self.shop_update()
 		self.ready = True
 		await self.txt.send("**I'm ready to play!**")
 
-	# async def async_init(self):
-	# 	channel = self.client.get_channel(language_jungle_txt_id)
-	# 	self.txt = await self.client.fetch_channel(language_jungle_txt_id)
-	# 	self.vc = await self.client.fetch_channel(language_jungle_vc_id)
-	# 	self.ready = True
-
-
 	@commands.Cog.listener()
-	async def on_reaction_add(self, reaction, member):
-		#guild = self.client.get_guild(payload.guild_id)
-		#member = discord.utils.get(guild.members, id=payload.member_id)
+	async def on_reaction_add(self, reaction, member) -> None:
+		""" Handles reaction additions. """
+
 		if not member or member.bot:
 			return
 		mid = self.multiplayer['message_id']
@@ -146,10 +136,9 @@ class Games(commands.Cog):
 		else:
 			await msg.remove_reaction(reaction, member)
 
-		#print(msg.reactions)
-
 	@commands.Cog.listener()
-	async def on_reaction_remove(self, reaction, member):
+	async def on_reaction_remove(self, reaction, member) -> None:
+		""" Handles reaction removals. """
 		
 		if not member or member.bot:
 			return
@@ -186,7 +175,9 @@ class Games(commands.Cog):
 			await msg.edit(embed=self.embed)
 
 	@commands.Cog.listener()
-	async def on_message(self, message):
+	async def on_message(self, message) -> None:
+		""" Handles messages. """
+
 		member = message.author
 		# Checks if it's a bot message
 		if member.bot:
@@ -214,25 +205,24 @@ class Games(commands.Cog):
 			await self.get_multiplayer_language_response_before(
 				self.multiplayer['teams'], self.current_answer, message)
 
-
 	# Members status update
 	@tasks.loop(seconds=10)
-	async def change_status(self):
+	async def change_status(self) -> None:
+		""" Changes the bot's activity status when someone is playing with the bot. """
+
 		if self.active:
 			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f'with someone.'))
 		else:
 			await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'new players.'))
 
-
 	# Downloads all content for the Language Jungle game
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def audio_update(self, ctx=None, rall: str = 'no'):
-		'''
-		Downloads all shop images from the GoogleDrive and stores in the bot's folder
-		:param ctx:
-		:return:
-		'''
+	async def audio_update(self, ctx: Optional[commands.Context] = None, rall: str = 'no') -> None:
+		""" Downloads all shop images from the GoogleDrive and stores in the bot's folder.
+		:param ctx: The context of the command. [Optional]
+		:param rall: Whether the it should remove all folders before downloading files. """
+
 		if rall.lower() == 'yes':
 			try:
 				shutil.rmtree('./language_jungle')
@@ -284,19 +274,17 @@ class Games(commands.Cog):
 								print('bah!')
 								pass
 
-
-
 		if ctx:
 			await ctx.send("**Download update complete!**")
-
 
 	# Google Drive commands
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def shop_update(self, ctx=None, rall: str = 'no'):
-		'''
-		(ADM) Downloads all shop images from the Google Drive.
-		'''
+	async def shop_update(self, ctx: Optional[commands.Context] = None, rall: str = 'no') -> None:
+		""" (ADM) Downloads all shop images from the Google Drive.
+		:param ctx: The context of the command. [Optional]
+		:param rall: Whether the it should remove all folders before downloading files. """
+
 		if ctx:
 			await ctx.message.delete()
 
@@ -305,7 +293,6 @@ class Games(commands.Cog):
 				shutil.rmtree('./sloth_custom_images')
 			except Exception:
 				pass
-
 
 		all_folders = {"background": "1V8l391o3-vsF9H2Jv24lDmy8e2erlHyI",
 					   "sloth": "16DB_lNrnrmvxu2E7RGu01rQGQk7z-zRy",
@@ -343,10 +330,9 @@ class Games(commands.Cog):
 
 	# Leaves the channel
 	@commands.command()
-	async def stop(self, ctx):
-		'''
-		Stops the game.
-		'''
+	async def stop(self, ctx: commands.Context) -> None:
+		""" Stops the game. """
+
 		if not self.active:
 			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
 
@@ -361,7 +347,6 @@ class Games(commands.Cog):
 					voice_client.stop()
 				return await ctx.send("**Multiplayer session ended!**")
 			return await ctx.send(f"**{ctx.author.mention}, you cannot end a multiplayer session just like that!**")
-
 
 		if mod_role_id in [r.id for r in ctx.author.roles] or perms.administrator or self.member_id == ctx.author.id:
 			await self.reset_bot_status()
@@ -379,15 +364,12 @@ class Games(commands.Cog):
 		if voice_client and voice_client.is_playing():
 			self.status = 'stop'
 			voice_client.stop()
-		#await self.txt.send("**Round ended!**")
-
 
 	@commands.cooldown(1, 1800, type=commands.BucketType.user)
 	@commands.command(aliases=['language', 'language jungle', 'jungle', 'lj', 'play', 'p'])
-	async def play_language(self, ctx):
-		'''
-		Plays the Language Jungle.
-		'''
+	async def play_language(self, ctx: commands.Context) -> None:
+		""" Plays the Language Jungle. (Singleplayer) """
+
 		member = ctx.author
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
@@ -417,8 +399,10 @@ class Games(commands.Cog):
 		self.start_ts = time()
 		await self.start_game(member, the_txt)
 
-	# Starts the Language Jungle game
-	async def start_game(self, member: discord.Member, the_txt):
+	async def start_game(self, member: discord.Member, the_txt: discord.TextChannel) -> None:
+		""" Starts the Language Jungle game.
+		:param member: The member who started the game.
+		:param the_txt: The game's main text channel. """
 		
 		voice = member.voice
 		voice_client = member.guild.voice_client
@@ -433,14 +417,19 @@ class Games(commands.Cog):
 
 		# Checks if the bot is in the same voice channel that the user
 		if voice and voice.channel == voice_client.channel:
-			# get a random language audio
+			# Gets a random language audio
 			path, language, audio = self.get_random_language()
 			# Plays the song
 			if not voice_client.is_playing():
 				audio_source = discord.FFmpegPCMAudio(path)
-				await the_txt.send("**The round starts now!**")
+
 				self.round += 1
-				await the_txt.send(f"**`ROUND {self.round}`**")
+				embed = discord.Embed(
+					title=f"__`ROUND {self.round}__",
+					description="The round starts now.",
+					color=discord.Color.green()
+				)
+				await the_txt.send(embed=embed)
 				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_language_response(member, the_txt, language)))
 
 		else:
@@ -451,10 +440,9 @@ class Games(commands.Cog):
 
 	@commands.command(aliases=['pmp', 'mp', 'multiplayer', 'zugumupu'])
 	@commands.cooldown(1, 360, type=commands.BucketType.guild)
-	async def play_multiplayer_language(self, ctx):
-		'''
-		Plays the Language Jungle (Multiplayer).
-		'''
+	async def play_multiplayer_language(self, ctx: commands.Context) -> None:
+		""" Plays the Language Jungle. (Multiplayer) """
+
 		member = ctx.author
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
@@ -506,6 +494,7 @@ class Games(commands.Cog):
 		await asyncio.sleep(60)
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
+
 		if not count_blue or not count_red:
 			await self.reset_bot_status()
 			self.active = False
@@ -517,14 +506,13 @@ class Games(commands.Cog):
 		await self.txt.send(f"**🔴 {count_red} red players and {count_blue} blue players!🔵**")
 		self.setting_up = False
 		await self.make_multiplayer_image()
-		# await asyncio.sleep(10)
-		#await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', channel)
-		# voice_client.play(audio_source, after=self.client.loop.create_task(self.start_multiplayer_game()))
 		await self.audio('language_jungle/SFX/Correct Answer.mp3', self.vc, self.start_multiplayer_game)
-		# await self.start_multiplayer_game()
 	
-	async def start_multiplayer_game(self):
+	async def start_multiplayer_game(self) -> None:
+		""" Starts the multiplayer game mode. """
+
 		the_txt = self.txt
+
 		# Starts the game
 		voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=self.txt.guild)
 
@@ -552,7 +540,9 @@ class Games(commands.Cog):
 					self.multiplayer['teams'], language)))
 
 
-	async def make_multiplayer_image(self):
+	async def make_multiplayer_image(self) -> None:
+		""" Makes the multiplayer's session image. """
+
 		msg = await self.txt.fetch_message(self.multiplayer['message_id'])
 		ctx = await self.client.get_context(msg)
 		template_image = 'language_jungle/Graphic/multiplayer lobby.png'
@@ -566,7 +556,6 @@ class Games(commands.Cog):
 		for team_k, team_v in self.multiplayer['teams'].items():
 			for team_m in team_v[0]:
 				member = discord.utils.get(ctx.guild.members, id=team_m)
-				member_icon = None
 				if member:
 					pfp = await self.get_user_pfp(member)
 
@@ -607,7 +596,10 @@ class Games(commands.Cog):
 		board.save('language_jungle/multiplayer_session.png', 'png', quality=90)
 		await self.txt.send(file=discord.File('language_jungle/multiplayer_session.png'))
 
-	async def get_user_pfp(self, member):
+	async def get_user_pfp(self, member: discord.Member) -> Any:
+		""" Get the user's profile picture.
+		:param member: The user to get the profile picture from. """
+
 		async with self.session.get(str(member.avatar_url)) as response:
 			image_bytes = await response.content.read()
 			with BytesIO(image_bytes) as pfp:
@@ -639,12 +631,15 @@ class Games(commands.Cog):
 
 		im_square = crop_max_square(im).resize((thumb_width, thumb_width), Image.LANCZOS)
 		im_thumb = mask_circle_transparent(im_square, 4)
-		#im_thumb.save('png/user_pfp.png', 'png', quality=90)
 		return im_thumb
 	
 
-	# Reproduces an audio by informing a path and a channel
-	async def audio(self, audio: str, channel, func = None):
+	async def audio(self, audio: str, channel: discord.VoiceChannel, func: Optional[Callable[[Any], Any]] = None) -> None:
+		""" Reproduces an audio by informing a path and a channel.
+		:param audio: The name of the audio.
+		:param channel: The voice channel in which the bot will reproduce the audio in.
+		:param func: What the bot will do after the audio is done. """
+
 		voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=channel.guild)
 		if not voice_client:
 			await channel.connect()
@@ -657,8 +652,9 @@ class Games(commands.Cog):
 			else:
 				voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(func()))
 
-	# Gets a random language audio
 	def get_random_language(self) -> str:
+		""" Gets a random language audio. """
+
 		while True:
 			try:
 				path = './language_jungle/Speech'
@@ -677,8 +673,12 @@ class Games(commands.Cog):
 				continue
 
 
-	# (Singleplayer) Waits for a user response and checks whether it's right or wrong
-	async def get_language_response(self, member: discord.Member, channel, language: str):
+	async def get_language_response(self, member: discord.Member, channel: discord.TextChannel, language: str) -> None:
+		""" (Singleplayer) Waits for a user response and checks whether it's right or wrong.
+		:param member: The user who's playing the game.
+		:param channel: The channel in which the game is being played.
+		:param language: The language/answer of the round. """
+
 		if self.status == 'stop':
 			self.status = 'normal'
 			return
@@ -743,8 +743,11 @@ class Games(commands.Cog):
 					await self.reset_bot_status()
 
 
-	# (Multiplayer) Waits for a user response and checks whether it's right or wrong
-	async def get_multiplayer_language_response_after(self, teams, language: str):
+	async def get_multiplayer_language_response_after(self, teams: dict, language: str) -> None:
+		""" (Multiplayer) Waits for a user response and checks whether it's right or wrong.
+		:param teams: The teams.
+		:param language: The language/answer of the round. """
+
 		channel = self.txt
 
 		if self.status == 'stop':
@@ -835,8 +838,12 @@ class Games(commands.Cog):
 				except:
 					await self.reset_bot_status()
 
-	# (Multiplayer) Waits for a user response and checks whether it's right or wrong
-	async def get_multiplayer_language_response_before(self, teams, language: str, message):
+	async def get_multiplayer_language_response_before(self, teams: dict, language: str, message: discord.Message) -> None:
+		""" (Multiplayer) Waits for a user response and checks whether it's right or wrong.
+		:param teams: The teams.
+		:param language: The language/answer of the round.
+		:param message: The user message. """
+
 		channel = self.txt
 		m = message
 		answer_right = False
@@ -904,7 +911,11 @@ class Games(commands.Cog):
 					return await self.reset_bot_status()
 				
 
-	async def make_score_image(self, questions: dict, channel):
+	async def make_score_image(self, questions: dict, channel: discord.TextChannel) -> None:
+		""" Makes the score image.
+		:param questions: The questions asked in the game.
+		:param the channel to send the score image to. """
+
 		path = './language_jungle/Graphic/score_result.png'
 		def get_the_img(the_img: str):
 			im = Image.open(the_img)
@@ -1006,7 +1017,11 @@ class Games(commands.Cog):
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
 		await self.reset_bot_status()
 
-	async def check_winner(self, redp, bluep):
+	async def check_winner(self, redp, bluep) -> None:
+		""" Checks the winner of the game.
+		:param redp: Red team points.
+		:param bluep: Blue team points. """
+
 		channel = self.vc
 		if redp > bluep:
 			await self.txt.send("**🔴Red team won!🔴**")
@@ -1035,7 +1050,11 @@ class Games(commands.Cog):
 		await self.reset_bot_status()
 
 
-	async def make_multiplayer_score_image(self, winners, image_path):
+	async def make_multiplayer_score_image(self, winners: List[int], image_path: str) -> None:
+		""" Makes the multiplayer score image.
+		:param winners: The people in the winning team.
+		:param image_path: The path of the winning team's template image."""
+
 		channel = self.txt
 
 		#232, 595 326765585461411851 , [356, 970]
@@ -1049,7 +1068,7 @@ class Games(commands.Cog):
 		background = Image.open(image_path)
 
 		draw = ImageDraw.Draw(background)
-		for i, winner in enumerate(winners):
+		for winner in winners:
 			# Get user
 			member = await self.client.fetch_user(winner)
 			cords = next(coordinates)
@@ -1106,14 +1125,20 @@ class Games(commands.Cog):
 		
 
 	# Database method (1)
-	async def update_user_money(self, user_id: int, money: int):
+	async def update_user_money(self, user_id: int, money: int) -> None:
+		""" Updates the user money.
+		:param user_id: The ID of the user to update the money.
+		:param money: The increment money value. (Can be negative) """
+
 		mycursor, db = await the_database()
-		await mycursor.execute(f"UPDATE UserCurrency SET user_money = user_money + {money} WHERE user_id = {user_id}")
+		await mycursor.execute("UPDATE UserCurrency SET user_money = user_money + %s WHERE user_id = %s", (money, user_id))
 		await db.commit()
 		await mycursor.close()
 
 
-	async def reset_bot_status(self):
+	async def reset_bot_status(self) -> None:
+		""" Resets the bot's status. """
+
 		self.questions.clear()
 		self.round = 0
 		self.lives = 3
@@ -1138,11 +1163,10 @@ class Games(commands.Cog):
 
 	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
 	@commands.has_permissions(administrator=True)
-	async def refresh_cooldown(self, ctx, member: discord.Member = None):
-		'''
-		(ADM) Resets the cooldown for a specific user.
-		:param member: The member to reset the cooldown (Optional).
-		'''
+	async def refresh_cooldown(self, ctx, member: Optional[discord.Member] = None) -> None:
+		""" (ADM) Resets the cooldown for a specific user.
+		:param member: The member to reset the cooldown (Optional). """
+
 		if not member:
 			member = ctx.author
 
@@ -1157,26 +1181,37 @@ class Games(commands.Cog):
 
 
 	# Database methods (3)
-	async def get_user_currency(self, user_id: int):
-		mycursor, db = await the_database()
-		await mycursor.execute(f"SELECT * FROM UserCurrency WHERE user_id = {user_id}")
+	async def get_user_currency(self, user_id: int) -> List[List[int]]:
+		""" Gets the user's currency info.
+		:param user_id: The ID of the user to get. """
+
+		mycursor, _ = await the_database()
+		await mycursor.execute("SELECT * FROM UserCurrency WHERE user_id = %s", (user_id,))
 		user_currency = await mycursor.fetchall()
 		await mycursor.close()
 		return user_currency
 
-	async def get_sloth_profile(self, user_id: int):
-		mycursor, db = await the_database()
+	async def get_sloth_profile(self, user_id: int) -> List[Union[int, str]]:
+		""" Gets the user's Sloth Profile information. """
+
+		mycursor, _ = await the_database()
 		await mycursor.execute("SELECT * FROM SlothProfile WHERE user_id = %s", (user_id,))
 		user_currency = await mycursor.fetchone()
 		await mycursor.close()
 		return user_currency
 
-	async def get_user_specific_type_item(self, user_id, item_type):
-		mycursor, db = await the_database()
+	async def get_user_specific_type_item(self, user_id: int, item_type: str) -> str:
+		""" Get a specific item type from the user.
+		:param user_id: The ID of the user.
+		:param item_type: The type of the item. """
+
+		mycursor, _ = await the_database()
 		await mycursor.execute(
-			f"SELECT item_name, image_name FROM UserItems WHERE user_id = {user_id} and item_type = '{item_type}' and enable = 'equipped'")
+			"SELECT item_name, image_name FROM UserItems WHERE user_id = %s AND item_type = %s AND enable = 'equipped'",
+			(user_id, item_type))
 		spec_type_items = await mycursor.fetchone()
 		await mycursor.close()
+		
 		if spec_type_items and spec_type_items[1]:
 			return f'./sloth_custom_images/{item_type}/{spec_type_items[1]}'
 
@@ -1185,7 +1220,7 @@ class Games(commands.Cog):
 
 	@commands.command(aliases=['audios', 'languages', 'smpls', 'langs'])
 	@commands.cooldown(1, 5, commands.BucketType.user)
-	async def samples(self, ctx) -> None:
+	async def samples(self, ctx: commands.Context) -> None:
 		""" Shows how many audio samples and languages we currently have in The Language Jungle game. """
 
 		path = './language_jungle/Speech'
@@ -1202,9 +1237,6 @@ class Games(commands.Cog):
 		embed.set_thumbnail(url=ctx.guild.icon_url)
 		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.avatar_url)
 		await ctx.send(embed=embed)
-
-
-
 
 
 def setup(client):
