@@ -425,7 +425,7 @@ class Games(commands.Cog):
 
 				self.round += 1
 				embed = discord.Embed(
-					title=f"__`ROUND {self.round}__",
+					title=f"__`ROUND {self.round}`__",
 					description="The round starts now.",
 					color=discord.Color.green()
 				)
