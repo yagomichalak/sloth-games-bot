@@ -4,25 +4,19 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# def get_token():
-# 	with open('token.txt', 'r') as f:
-# 		lines = f.readlines()
-# 		return lines[0].strip()
-
-
+from typing import Any
 
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix='zg!', intents=intents)
-# token = get_token()
+client = commands.Bot(command_prefix='zg!', intents=intents, help_command=None)
 token = os.getenv('TOKEN')
 
 @client.event
-async def on_ready():
+async def on_ready() -> None:
 	print("Bot is ready!")
 
 # Handles the errors
 @client.event
-async def on_command_error(ctx, error):
+async def on_command_error(ctx: commands.Context, error: Any):
 
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You can't do that!")
@@ -45,49 +39,105 @@ async def on_command_error(ctx, error):
 
     print(error)
 
+@client.command()
+async def help(ctx: commands.Context, cmd: str = None) -> None:
+  """ Shows some information about commands and categories.
+  :param cmd: The command or cog to show info about. """
+  
+  if not cmd:
+      embed = discord.Embed(
+      title="All commands and categories",
+      description=f"```ini\nUse {client.command_prefix}help command or {client.command_prefix}help category to know more about a specific command or category\n\n[Examples]\n[1] Category: {client.command_prefix}help Astronomy\n[2] Command : {client.command_prefix}help listUniverse```",
+      timestamp=ctx.message.created_at,
+      color=ctx.author.color
+      )
+
+      for cog in client.cogs:
+          cog = client.get_cog(cog)
+          commands = [c.name for c in cog.get_commands() if not c.hidden]
+          if commands:
+            embed.add_field(
+            name=f"__{cog.qualified_name}__",
+            value=f"`Commands:` {', '.join(commands)}",
+            inline=False
+            )
+
+      cmds = []
+      for y in client.walk_commands():
+          if not y.cog_name and not y.hidden:
+              cmds.append(y.name)
+      embed.add_field(
+      name='__Uncategorized Commands__', 
+      value=f"`Commands:` {', '.join(cmds)}", 
+      inline=False)
+      await ctx.send(embed=embed)
+
+  else:
+    # Checks if it's a command
+    if command := client.get_command(cmd.lower()):
+      command_embed = discord.Embed(title=f"__Command:__ {command.name}", description=f"__**Description:**__\n```{command.help}```", color=ctx.author.color, timestamp=ctx.message.created_at)
+      return await ctx.send(embed=command_embed)
+
+    for cog in client.cogs:
+      if str(cog).lower() == str(cmd).lower():
+          cog = client.get_cog(cog)
+          cog_embed = discord.Embed(title=f"__Cog:__ {cog.qualified_name}", description=f"__**Description:**__\n```{cog.description}```", color=ctx.author.color, timestamp=ctx.message.created_at)
+          for c in cog.get_commands():
+              if not c.hidden:
+                  cog_embed.add_field(name=c.name,value=c.help,inline=False)
+
+          return await ctx.send(embed=cog_embed)
+
+    # Otherwise, it's an invalid parameter (Not found)
+    else:
+      await ctx.send(f"**Invalid parameter! `{cmd}` is neither a command nor a cog!**")
+
+
 
 @client.command()
 @commands.has_permissions(administrator=True)
-async def logout(ctx):
-	await ctx.send("**Bye!**")
-	await client.close()
+async def logout(ctx: commands.Context) -> None:
+    """ Logs-out the bot. """
+
+    await ctx.send("**Bye!**")
+    await client.close()
 
 
 @client.command()
 @commands.has_permissions(administrator=True)
-async def load(ctx, extension: str = None):
-    '''
-    Loads a cog.
-    :param extension: The cog.
-    '''
+async def load(ctx: commands.Context, extension: str = None) -> None:
+    """ Loads a cog.
+    :param extension: The cog. """
+
     if not extension:
         return await ctx.send("**Inform the cog!**")
+
     client.load_extension(f'cogs.{extension}')
     return await ctx.send(f"**{extension} loaded!**")
 
 
 @client.command()
 @commands.has_permissions(administrator=True)
-async def unload(ctx, extension: str = None):
-    '''
-    Unloads a cog.
-    :param extension: The cog.
-    '''
+async def unload(ctx: commands.Context, extension: str = None) -> None:
+    """ Unloads a cog.
+    :param extension: The cog. """
+
     if not extension:
         return await ctx.send("**Inform the cog!**")
+
     client.unload_extension(f'cogs.{extension}')
     return await ctx.send(f"**{extension} unloaded!**")
 
 
 @client.command()
 @commands.has_permissions(administrator=True)
-async def reload(ctx, extension: str = None):
-    '''
-    Reloads a cog.
-    :param extension: The cog.
-    '''
+async def reload(ctx: commands.Context, extension: str = None) -> None:
+    """ Reloads a cog.
+    :param extension: The cog. """
+
     if not extension:
         return await ctx.send("**Inform the cog!**")
+
     client.unload_extension(f'cogs.{extension}')
     client.load_extension(f'cogs.{extension}')
     return await ctx.send(f"**{extension} reloaded!**")
