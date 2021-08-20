@@ -530,7 +530,6 @@ class Games(commands.Cog):
 		# Plays the song
 		if not voice_client.is_playing():
 			audio_source = discord.FFmpegPCMAudio(path)
-			await self.txt.send("**The round starts now!**")
 			self.round += 1
 			self.round_active = True
 			embed = discord.Embed(
@@ -1013,11 +1012,11 @@ class Games(commands.Cog):
 		await channel.send(file=discord.File(path))
 		if self.lives:
 			try:
-				await self.update_user_money(self.member_id, 10)
+				await self.update_user_money(self.member_id, 5)
 			except Exception:
 				pass
 			else:
-				await channel.send(f"<:zslothmonopoly:705452184602673163> **10łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
+				await channel.send(f"<:zslothmonopoly:705452184602673163> **5łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
 		await self.reset_bot_status()
@@ -1119,7 +1118,7 @@ class Games(commands.Cog):
 
 			draw.text(name_cords, f"{name}", (0, 0, 0), font=small)
 			try:
-				await self.update_user_money(member.id, 15)
+				await self.update_user_money(member.id, 5)
 			except Exception:
 				pass
 
