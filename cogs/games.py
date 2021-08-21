@@ -1,8 +1,6 @@
 import discord
-from discord import user
 from discord.ext import commands, tasks
 
-from gtts import gTTS
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from mysqldb import the_database
@@ -14,8 +12,8 @@ import asyncio
 import aiohttp
 
 from typing import List, Optional, Callable, Any, Union
-from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from time import sleep, time
+from PIL import Image, ImageFont, ImageDraw
+from time import time
 from io import BytesIO
 
 language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
@@ -116,7 +114,10 @@ class Games(commands.Cog):
 			if member.id in blue_team or member.id in red_team:
 				return await msg.remove_reaction(reaction, member)
 
-			self.embed.clear_fields()
+			member_state = member.voice
+			if not member_state or member_state.channel.id != self.vc.id:
+				return await msg.remove_reaction(reaction, member)
+
 			if emj == '🔵':
 				if len(blue_team) == 5:
 					await msg.remove_reaction(reaction, member)
@@ -129,9 +130,7 @@ class Games(commands.Cog):
 				else:
 					red_team.append(member.id)
 
-			self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
-			self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
-			await msg.edit(embed=self.embed)
+			await self.update_multiplayer_message(msg)
 			
 		else:
 			await msg.remove_reaction(reaction, member)
@@ -157,7 +156,7 @@ class Games(commands.Cog):
 			red_team = self.multiplayer['teams']['red'][0]
 			if member.id not in blue_team and member.id not in red_team:
 				return
-			self.embed.clear_fields()
+
 			if emj == '🔵':
 				try:
 					blue_team.remove(member.id)
@@ -170,9 +169,7 @@ class Games(commands.Cog):
 				except:
 					pass
 
-			self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
-			self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
-			await msg.edit(embed=self.embed)
+			await self.update_multiplayer_message(msg)
 
 	@commands.Cog.listener()
 	async def on_message(self, message) -> None:
@@ -204,6 +201,68 @@ class Games(commands.Cog):
 			# If so, checks if the user answer was right
 			await self.get_multiplayer_language_response_before(
 				self.multiplayer['teams'], self.current_answer, message)
+
+	@commands.Cog.listener()
+	async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+		""" Checks whether people have open cameras in the voice channel. """
+
+		if member.bot:
+			return
+
+		# Check voice states
+		if before.mute != after.mute:
+			return
+		if before.deaf != before.deaf:
+			return
+		if before.self_mute != after.self_mute:
+			return
+		if before.self_deaf != after.self_deaf:
+			return
+		if before.self_stream != after.self_stream:
+			return
+		if before.self_video != after.self_video:
+			return
+		
+		if self.setting_up:
+			
+			# Checks if their previous state was the TLJ VC
+			if before.channel and before.channel.id == self.vc.id:
+
+				# Checks if the current state is not the TLJ vc anymore
+				if not after.channel or after.channel.id != self.vc.id:
+
+					# Checks if user was a red or blue team member.
+					blue_team = self.multiplayer['teams']['blue'][0]
+					red_team = self.multiplayer['teams']['red'][0]
+
+					if member.id in blue_team:
+						try:							
+							blue_team.remove(member.id)
+						except:
+							pass
+						mid = self.multiplayer['message_id']
+						msg = await self.txt.fetch_message(mid)
+						await msg.remove_reaction('🔵', member)
+						await self.update_multiplayer_message(msg)
+
+					elif member.id in red_team:
+						try:						
+							red_team.remove(member.id)
+						except:
+							pass
+						mid = self.multiplayer['message_id']
+						msg = await self.txt.fetch_message(mid)
+						await msg.remove_reaction('🔴', member)
+						await self.update_multiplayer_message(msg)
+
+	async def update_multiplayer_message(self, msg: discord.Message) -> None:
+		""" Updates the multiplayer message.
+		:param msg: The message to update. """
+
+		self.embed.clear_fields()
+		self.embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
+		self.embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
+		await msg.edit(embed=self.embed)
 
 	# Members status update
 	@tasks.loop(seconds=10)
@@ -688,7 +747,10 @@ class Games(commands.Cog):
 			return
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
-			return m.author.id == member.id and m.channel.id == channel.id
+			if m.author.id == member.id and m.channel.id == channel.id:
+				# Checks whether user is in the VC to answer the question
+				member_state = member.voice
+				return member_state and member_state.channel.id == self.vc.id
 
 		try:
 			answer = await self.client.wait_for('message', timeout=30, check=check)
@@ -763,6 +825,12 @@ class Games(commands.Cog):
 		def check(m):
 			member = m.author
 			if m.channel.id == channel.id:
+
+				# Checks whether user is in the VC to answer the question
+				member_state = member.voice
+				if not member_state or member_state.channel.id != self.vc.id:
+					return False
+
 				if member.id in teams['blue'][0]:
 
 					# Checks if it's a right answer
@@ -1012,11 +1080,11 @@ class Games(commands.Cog):
 		await channel.send(file=discord.File(path))
 		if self.lives:
 			try:
-				await self.update_user_money(self.member_id, 5)
+				await self.update_user_money(self.member_id, 20)
 			except Exception:
 				pass
 			else:
-				await channel.send(f"<:zslothmonopoly:705452184602673163> **5łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
+				await channel.send(f"<:zslothmonopoly:705452184602673163> **20łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
 		await self.reset_bot_status()
@@ -1072,6 +1140,7 @@ class Games(commands.Cog):
 		background = Image.open(image_path)
 
 		draw = ImageDraw.Draw(background)
+		# Loops all winners
 		for winner in winners:
 			# Get user
 			member = await self.client.fetch_user(winner)
@@ -1085,7 +1154,7 @@ class Games(commands.Cog):
 				await member.send(embed=discord.Embed(description=f"**You didn't appear in the Sloth Games score because you didn't choose a Sloth Class yet. Click [here](https://thelanguagesloth.com/profile/update) to create one!**"))
 				continue
 
-			# Sloth image request
+			# Gets their Sloth items
 			sloth = Image.open(f'sloth_custom_images/sloth/{sloth_profile[1].title()}.png').resize((350, 250), Image.LANCZOS)
 			body = Image.open(await self.get_user_specific_type_item(
 				member.id, 'body')).resize((350, 250), Image.LANCZOS)
@@ -1110,16 +1179,23 @@ class Games(commands.Cog):
 			except:
 				pass
 
+			# Writes their names
 			name_cords = [cords[0]+55,  cords[1]+20]
-
 			name = member.name
 			if name:
 				name = str(name)[:10]
-
 			draw.text(name_cords, f"{name}", (0, 0, 0), font=small)
+
+			# Updates money
 			try:
-				await self.update_user_money(member.id, 5)
-			except Exception:
+				# Checks whether they are in the TLJ VC
+				member_state = member.voice
+				if not member_state or member_state.channel.id != self.vc.id:
+					continue
+
+				await self.update_user_money(member.id, 10)
+			except Exception as e:
+				print(e)
 				pass
 
 
