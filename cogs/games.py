@@ -20,6 +20,7 @@ language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
 language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
 cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
+server_id = int(os.getenv('SERVER_ID'))
 
 # Starts the GoogleDrive connection
 gauth = GoogleAuth()
@@ -1140,10 +1141,11 @@ class Games(commands.Cog):
 		background = Image.open(image_path)
 
 		draw = ImageDraw.Draw(background)
+		guild = self.client.get_guild(server_id)
 		# Loops all winners
 		for winner in winners:
 			# Get user
-			member = await self.client.fetch_user(winner)
+			member = guild.get_member(winner)
 			cords = next(coordinates)
 			sloth_cords = next(sloth_coordinates)
 			sloth_profile = await self.get_sloth_profile(winner)
