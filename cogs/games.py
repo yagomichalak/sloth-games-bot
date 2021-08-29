@@ -115,9 +115,9 @@ class Games(commands.Cog):
 			if member.id in blue_team or member.id in red_team:
 				return await msg.remove_reaction(reaction, member)
 
-			member_state = member.voice
-			if not member_state or member_state.channel.id != self.vc.id:
-				return await msg.remove_reaction(reaction, member)
+			# member_state = member.voice
+			# if not member_state or member_state.channel.id != self.vc.id:
+			# 	return await msg.remove_reaction(reaction, member)
 
 			if emj == '🔵':
 				if len(blue_team) == 5:
@@ -750,8 +750,9 @@ class Games(commands.Cog):
 		def check(m):
 			if m.author.id == member.id and m.channel.id == channel.id:
 				# Checks whether user is in the VC to answer the question
-				member_state = member.voice
-				return member_state and member_state.channel.id == self.vc.id
+				return True
+				# member_state = member.voice
+				# return member_state and member_state.channel.id == self.vc.id
 
 		try:
 			answer = await self.client.wait_for('message', timeout=30, check=check)
@@ -828,9 +829,9 @@ class Games(commands.Cog):
 			if m.channel.id == channel.id:
 
 				# Checks whether user is in the VC to answer the question
-				member_state = member.voice
-				if not member_state or member_state.channel.id != self.vc.id:
-					return False
+				# member_state = member.voice
+				# if not member_state or member_state.channel.id != self.vc.id:
+				# 	return False
 
 				if member.id in teams['blue'][0]:
 
@@ -1191,9 +1192,9 @@ class Games(commands.Cog):
 			# Updates money
 			try:
 				# Checks whether they are in the TLJ VC
-				member_state = member.voice
-				if not member_state or member_state.channel.id != self.vc.id:
-					continue
+				# member_state = member.voice
+				# if not member_state or member_state.channel.id != self.vc.id:
+				# 	continue
 
 				await self.update_user_money(member.id, 10)
 			except Exception as e:
