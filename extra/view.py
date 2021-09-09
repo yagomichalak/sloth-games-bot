@@ -59,7 +59,7 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
         red_team = self.cog.multiplayer['teams']['red'][0]
         # Checks whether user is in the red team
         if member.id in red_team:
-            return await interaction.followup.send(f"**You cannot join the red team because you're in the bçie team already, {member.mention}!**", ephemeral=True)
+            return await interaction.followup.send(f"**You cannot join the red team because you're in the blue team already, {member.mention}!**", ephemeral=True)
 
         if member.id in blue_team:
             try:

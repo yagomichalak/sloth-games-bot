@@ -1,13 +1,14 @@
 import discord
+from discord.app.commands import Option
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from typing import Any
+from typing import List, Any
 
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix='zg!', intents=intents, help_command=None)
+guild_ids: List[int] = [int(os.getenv('SERVER_ID'))]
+client = commands.Bot(command_prefix='zg!', intents=discord.Intents.all(), help_command=None)
 token = os.getenv('TOKEN')
 
 @client.event
@@ -146,6 +147,23 @@ async def reload(ctx: commands.Context, extension: str = None) -> None:
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
+
+
+
+@commands.cooldown(1, 1800, type=commands.BucketType.user)
+@client.slash_command(name="play", guild_ids=guild_ids)
+async def play_language(ctx: discord.ApplicationContext, mode:
+    Option(str, name="mode", description="The gamemode you want to play", choices=['Singleplayer', 'Multiplayer'], required=True)
+    ) -> None:
+    """ Plays The Language Jungle game. """
+
+    await ctx.defer()
+
+    cog = client.get_cog('Games')
+    if mode == 'Singleplayer':
+        await cog._play_singleplayer_language_callback(ctx)
+    elif mode == 'Multiplayer':
+        await cog._play_multiplayer_language_callback(ctx)
 
 
 client.run(token)
