@@ -347,31 +347,39 @@ class Games(commands.Cog):
 
 	@commands.cooldown(1, 1800, type=commands.BucketType.user)
 	@commands.command(aliases=['language', 'language jungle', 'jungle', 'lj', 'play', 'p'])
-	async def play_language(self, ctx: commands.Context) -> None:
+	async def play_language(self, ctx: Union[commands.Context, discord.ApplicationContext]) -> None:
 		""" Plays the Language Jungle. (Singleplayer) """
 
 		member = ctx.author
+
+		# Sorts out the messageable object
+		answer: discord.PartialMessageable = None
+		if isinstance(ctx, commands.Context):
+			answer = ctx.send
+		else:
+			answer = ctx.respond
+
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
 			self.client.get_command('play_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
+			return await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.message.author.voice
 		if voice is None:
 			self.client.get_command('play_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you're not in the voice channel**")
+			return await answer(f"**{member.mention}, you're not in the voice channel**")
 
 		if voice.channel.id != language_jungle_vc_id:
 			self.client.get_command('play_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
+			return await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
 		if not self.ready:
-			return await ctx.send("**I'm still downloading the audios, wait a bit!**")
+			return await answer("**I'm still downloading the audios, wait a bit!**")
 
 		if self.active:
 			self.client.get_command('play_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, someone is already playing!**")
+			return await answer(f"**{member.mention}, someone is already playing!**")
 
 		self.active = True
 		self.member_id = member.id
@@ -422,29 +430,37 @@ class Games(commands.Cog):
 	async def play_multiplayer_language(self, ctx: commands.Context) -> None:
 		""" Plays the Language Jungle. (Multiplayer) """
 
+		# Sorts out the messageable object
+		answer: discord.PartialMessageable = None
+		if isinstance(ctx, commands.Context):
+			answer = ctx.send
+		else:
+			answer = ctx.respond
+
 		member = ctx.author
+
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
+			return await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.message.author.voice
 		if voice is None:
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you're not in the voice channel**")
+			return await answer(f"**{member.mention}, you're not in the voice channel**")
 
 		if voice.channel.id != language_jungle_vc_id:
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
+			return await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
 		if not self.ready:
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send("**I'm still downloading the audios, wait a bit!**")
+			return await answer("**I'm still downloading the audios, wait a bit!**")
 
 		if self.active:
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send(f"**{member.mention}, someone is already playing!**")
+			return await answer(f"**{member.mention}, someone is already playing!**")
 
 		await self.reset_bot_status()
 		self.active = True
@@ -466,12 +482,11 @@ class Games(commands.Cog):
 		
 		view = TheLanguageJungleMultiplayerView(self, 60)
 
-		msg = await ctx.send(embed=embed, view=view)
+		msg = await answer(embed=embed, view=view)
 		self.multiplayer['message_id'] = msg.id
 
 		self.embed = embed
 		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		# await asyncio.sleep(60)
 		await view.wait()
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
@@ -481,7 +496,7 @@ class Games(commands.Cog):
 			self.active = False
 			self.multiplayer_active = False
 			self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
-			return await ctx.send(
+			return await answer(
 				"**Both teams must have at least 1 player to start a gaming session! Try again!**")
 
 		await self.txt.send(f"**🔴 {count_red} red players and {count_blue} blue players!🔵**")
@@ -1241,6 +1256,8 @@ class Games(commands.Cog):
 		embed.set_thumbnail(url=ctx.guild.icon.url)
 		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.display_avatar)
 		await ctx.send(embed=embed)
+
+
 
 
 def setup(client):
