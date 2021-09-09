@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands, tasks
+from extra.view import TheLanguageJungleMultiplayerView
 
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -94,85 +95,6 @@ class Games(commands.Cog):
 		await self.txt.send("**I'm ready to play!**")
 
 	@commands.Cog.listener()
-	async def on_reaction_add(self, reaction, member) -> None:
-		""" Handles reaction additions. """
-
-		if not member or member.bot:
-			return
-		mid = self.multiplayer['message_id']
-		if not mid:
-			return
-		if not reaction.message.id == mid:
-			return
-		if not self.setting_up:
-			return
-		msg = await self.txt.fetch_message(mid)
-
-		emj = str(reaction.emoji)
-		if emj in ['🔵', '🔴']:
-			blue_team = self.multiplayer['teams']['blue'][0]
-			red_team = self.multiplayer['teams']['red'][0]
-			if member.id in blue_team or member.id in red_team:
-				return await msg.remove_reaction(reaction, member)
-
-			# member_state = member.voice
-			# if not member_state or member_state.channel.id != self.vc.id:
-			# 	return await msg.remove_reaction(reaction, member)
-
-			if emj == '🔵':
-				if len(blue_team) == 5:
-					await msg.remove_reaction(reaction, member)
-				else:
-					blue_team.append(member.id)
-
-			elif emj == '🔴':
-				if len(red_team) == 5:
-					await msg.remove_reaction(reaction, member)
-				else:
-					red_team.append(member.id)
-
-			await self.update_multiplayer_message(msg)
-			
-		else:
-			await msg.remove_reaction(reaction, member)
-
-	@commands.Cog.listener()
-	async def on_reaction_remove(self, reaction, member) -> None:
-		""" Handles reaction removals. """
-		
-		if not member or member.bot:
-			return
-		mid = self.multiplayer['message_id']
-		if not mid:
-			return
-		if not reaction.message.id == mid:
-			return
-		if not self.setting_up:
-			return
-		msg = await self.txt.fetch_message(mid)
-
-		emj = str(reaction.emoji)
-		if emj in ['🔵', '🔴']:
-			blue_team = self.multiplayer['teams']['blue'][0]
-			red_team = self.multiplayer['teams']['red'][0]
-			if member.id not in blue_team and member.id not in red_team:
-				return
-
-			if emj == '🔵':
-				try:
-					blue_team.remove(member.id)
-				except:
-					pass
-
-			elif emj == '🔴':
-				try:
-					red_team.remove(member.id)
-				except:
-					pass
-
-			await self.update_multiplayer_message(msg)
-
-	@commands.Cog.listener()
 	async def on_message(self, message) -> None:
 		""" Handles messages. """
 
@@ -203,58 +125,56 @@ class Games(commands.Cog):
 			await self.get_multiplayer_language_response_before(
 				self.multiplayer['teams'], self.current_answer, message)
 
-	@commands.Cog.listener()
-	async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
-		""" Checks whether people have open cameras in the voice channel. """
+	# @commands.Cog.listener()
+	# async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+	# 	""" Checks whether team members are still in the voice channel. """
 
-		if member.bot:
-			return
+	# 	if member.bot:
+	# 		return
 
-		# Check voice states
-		if before.mute != after.mute:
-			return
-		if before.deaf != before.deaf:
-			return
-		if before.self_mute != after.self_mute:
-			return
-		if before.self_deaf != after.self_deaf:
-			return
-		if before.self_stream != after.self_stream:
-			return
-		if before.self_video != after.self_video:
-			return
+	# 	# Check voice states
+	# 	if before.mute != after.mute:
+	# 		return
+	# 	if before.deaf != before.deaf:
+	# 		return
+	# 	if before.self_mute != after.self_mute:
+	# 		return
+	# 	if before.self_deaf != after.self_deaf:
+	# 		return
+	# 	if before.self_stream != after.self_stream:
+	# 		return
+	# 	if before.self_video != after.self_video:
+	# 		return
 		
-		if self.setting_up:
+	# 	if self.setting_up:
 			
-			# Checks if their previous state was the TLJ VC
-			if before.channel and before.channel.id == self.vc.id:
+	# 		# Checks if their previous state was the TLJ VC
+	# 		if before.channel and before.channel.id == self.vc.id:
 
-				# Checks if the current state is not the TLJ vc anymore
-				if not after.channel or after.channel.id != self.vc.id:
+	# 			# Checks if the current state is not the TLJ vc anymore
+	# 			if not after.channel or after.channel.id != self.vc.id:
 
-					# Checks if user was a red or blue team member.
-					blue_team = self.multiplayer['teams']['blue'][0]
-					red_team = self.multiplayer['teams']['red'][0]
+	# 				# Checks if user was a red or blue team member.
+	# 				blue_team = self.multiplayer['teams']['blue'][0]
+	# 				red_team = self.multiplayer['teams']['red'][0]
 
-					if member.id in blue_team:
-						try:							
-							blue_team.remove(member.id)
-						except:
-							pass
-						mid = self.multiplayer['message_id']
-						msg = await self.txt.fetch_message(mid)
-						await msg.remove_reaction('🔵', member)
-						await self.update_multiplayer_message(msg)
+	# 				if member.id in blue_team:
+	# 					try:							
+	# 						blue_team.remove(member.id)
+	# 					except:
+	# 						pass
+	# 					mid = self.multiplayer['message_id']
+	# 					msg = await self.txt.fetch_message(mid)
+	# 					await self.update_multiplayer_message(msg)
 
-					elif member.id in red_team:
-						try:						
-							red_team.remove(member.id)
-						except:
-							pass
-						mid = self.multiplayer['message_id']
-						msg = await self.txt.fetch_message(mid)
-						await msg.remove_reaction('🔴', member)
-						await self.update_multiplayer_message(msg)
+	# 				elif member.id in red_team:
+	# 					try:						
+	# 						red_team.remove(member.id)
+	# 					except:
+	# 						pass
+	# 					mid = self.multiplayer['message_id']
+	# 					msg = await self.txt.fetch_message(mid)
+	# 					await self.update_multiplayer_message(msg)
 
 	async def update_multiplayer_message(self, msg: discord.Message) -> None:
 		""" Updates the multiplayer message.
@@ -453,7 +373,6 @@ class Games(commands.Cog):
 			self.client.get_command('play_language').reset_cooldown(ctx)
 			return await ctx.send(f"**{member.mention}, someone is already playing!**")
 
-		the_vc = discord.utils.get(member.guild.channels, id=language_jungle_vc_id)
 		self.active = True
 		self.member_id = member.id
 		self.start_ts = time()
@@ -544,14 +463,16 @@ class Games(commands.Cog):
 		embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
 		embed.set_image(url='https://media1.tenor.com/images/81e68cca293ebd7656deec2bc582ef1c/tenor.gif?itemid=14484132')
 		embed.set_footer(text=f"Queue started by {ctx.author}")
-		msg = await ctx.send(embed=embed)
+		
+		view = TheLanguageJungleMultiplayerView(self, 60)
+
+		msg = await ctx.send(embed=embed, view=view)
 		self.multiplayer['message_id'] = msg.id
 
-		await msg.add_reaction('🔴')
-		await msg.add_reaction('🔵')
 		self.embed = embed
 		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		await asyncio.sleep(60)
+		# await asyncio.sleep(60)
+		await view.wait()
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 
@@ -664,7 +585,7 @@ class Games(commands.Cog):
 		""" Get the user's profile picture.
 		:param member: The user to get the profile picture from. """
 
-		async with self.session.get(str(member.avatar_url)) as response:
+		async with self.session.get(str(member.display_avatar)) as response:
 			image_bytes = await response.content.read()
 			with BytesIO(image_bytes) as pfp:
 				image = Image.open(pfp)
@@ -1316,9 +1237,9 @@ class Games(commands.Cog):
 			color=ctx.author.color,
 			timestamp=ctx.message.created_at
 		)
-		embed.set_author(name=self.client.user, icon_url=self.client.user.avatar_url)
-		embed.set_thumbnail(url=ctx.guild.icon_url)
-		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.avatar_url)
+		embed.set_author(name=self.client.user, icon_url=self.client.user.display_avatar)
+		embed.set_thumbnail(url=ctx.guild.icon.url)
+		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.display_avatar)
 		await ctx.send(embed=embed)
 
 
