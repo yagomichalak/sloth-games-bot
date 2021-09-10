@@ -1,4 +1,6 @@
 import discord
+from extra import utils
+from discord.app.context import ApplicationContext
 from discord.ext import commands, tasks
 from extra.view import TheLanguageJungleMultiplayerView
 
@@ -508,9 +510,7 @@ class Games(commands.Cog):
 
 		self.embed = embed
 		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		print('lets wait a bit')
 		await view.wait()
-		print('waiting finished')
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 
@@ -1261,25 +1261,38 @@ class Games(commands.Cog):
 		else:
 			return f'./sloth_custom_images/{item_type}/base_{item_type}.png'
 
-	@commands.command(aliases=['audios', 'languages', 'smpls', 'langs'])
+	@commands.command(name="samples", aliases=['audios', 'languages', 'smpls', 'langs'])
 	@commands.cooldown(1, 5, commands.BucketType.user)
-	async def samples(self, ctx: commands.Context) -> None:
+	async def _samples_command(self, ctx: commands.Context) -> None:
 		""" Shows how many audio samples and languages we currently have in The Language Jungle game. """
+
+		await self._samples_callback(ctx)
+
+	async def _samples_callback(self, ctx: Union[commands.Context, discord.ApplicationContext]) -> None:
+		""" Shows how many audio samples and languages we currently have in The Language Jungle game. (Callback) """
+
+		answer: discord.PartialMessageable = None
+		if isinstance(ctx, commands.Context):
+			answer = ctx.send
+		else:
+			answer = ctx.respond
 
 		path = './language_jungle/Speech'
 		languages = [folder for folder in os.listdir(path)]
-		audios = [1 for language in languages for audio in os.listdir(f"{path}/{language}")]
+		audios = [1 for language in languages for _ in os.listdir(f"{path}/{language}")]
+
+		current_time = await utils.get_time_now()
 
 		embed = discord.Embed(
 			title="__Samples__",
 			description=f"We currently have **`{sum(audios)}`** different audio samples grouped into **`{len(languages)}`** different languages respectively.",
 			color=ctx.author.color,
-			timestamp=ctx.message.created_at
+			timestamp=current_time
 		)
 		embed.set_author(name=self.client.user, icon_url=self.client.user.display_avatar)
 		embed.set_thumbnail(url=ctx.guild.icon.url)
 		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.display_avatar)
-		await ctx.send(embed=embed)
+		await answer(embed=embed)
 
 
 
