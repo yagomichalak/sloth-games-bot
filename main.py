@@ -166,10 +166,12 @@ async def play_language(ctx: discord.ApplicationContext, mode:
         await cog._play_multiplayer_language_callback(ctx)
 
 @commands.cooldown(1, 5, commands.BucketType.user)
-@client.slash_command(name="samples", aliases=['audios', 'languages', 'smpls', 'langs'])
-async def _samples_slash(self, ctx: discord.ApplicationContext) -> None:
+@client.slash_command(name="samples", guild_ids=guild_ids)
+async def _samples_slash(ctx: discord.ApplicationContext) -> None:
     """ Shows how many audio samples and languages we currently have in The Language Jungle game. """
 
-    await self.client.get_cog('Games')._samples_callback(ctx)
+    await ctx.defer()
+
+    await client.get_cog('Games')._samples_callback(ctx)
 
 client.run(token)
