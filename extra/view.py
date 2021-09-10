@@ -82,6 +82,25 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
 
         await self.cog.update_multiplayer_message(interaction.message)
 
+    @discord.ui.button(label="See Teams", custom_id="see_teams_id", emoji="⬇️", style=discord.ButtonStyle.gray)
+    async def see_teams_button(self, button: discord.ui.button, interaction: discord.Interaction) -> None:
+        """ Shows all people in both teams """
+
+        embed = discord.Embed(
+            title="__Showing Both Teams:__",
+            color=interaction.user.color
+        )
+
+        red_team = '\n'.join([f"<@{rm}>" for rm in self.cog.multiplayer['teams']['red'][0]])
+        blue_team = '\n'.join([f"<@{bm}>" for bm in self.cog.multiplayer['teams']['blue'][0]])
+
+        embed.add_field(name='🔴 __Red team__', value=red_team or 'No one.', inline=True)
+        embed.add_field(name='🔵 __Blue team__', value=blue_team or 'No one.', inline=True)
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         # if not member_state or member_state.channel.id != self.cog.vc.id:
         # 	return await interaction.response.send(f"**You are not in the VC, {interaction.user.mention}!**")
