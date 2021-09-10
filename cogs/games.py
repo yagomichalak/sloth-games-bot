@@ -1181,24 +1181,24 @@ class Games(commands.Cog):
 		}
 
 
-	@commands.command(aliases=['refresh', 'rfcd', 'reset'])
-	@commands.has_permissions(administrator=True)
-	async def refresh_cooldown(self, ctx, member: Optional[discord.Member] = None) -> None:
-		""" (ADM) Resets the cooldown for a specific user.
-		:param member: The member to reset the cooldown (Optional). """
+	# @commands.command(aliases=['refresh', 'rfcd', 'reset'])
+	# @commands.has_permissions(administrator=True)
+	# async def refresh_cooldown(self, ctx, member: Optional[discord.Member] = None) -> None:
+	# 	""" (ADM) Resets the cooldown for a specific user.
+	# 	:param member: The member to reset the cooldown (Optional). """
 
-		if not member:
-			member = ctx.author
+	# 	if not member:
+	# 		member = ctx.author
 
-		channel = ctx.channel
-		for m in await channel.history(limit=100).flatten():
-			if m.author == member and m.channel.id == channel.id:
-				new_ctx = await self.client.get_context(m)
-				self.client.get_command('language').reset_cooldown(new_ctx)
-				self.client.get_command('play_multiplayer_language').reset_cooldown(new_ctx)
-				return await ctx.send(f"**{member.mention}'s cooldown has been reset!**")
-		else:
-			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
+	# 	channel = ctx.channel
+	# 	for m in await channel.history(limit=100).flatten():
+	# 		if m.author == member and m.channel.id == channel.id:
+	# 			new_ctx = await self.client.get_context(m)
+	# 			self.client.get_command('language').reset_cooldown(new_ctx)
+	# 			self.client.get_command('play_multiplayer_language').reset_cooldown(new_ctx)
+	# 			return await ctx.send(f"**{member.mention}'s cooldown has been reset!**")
+	# 	else:
+	# 		await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
 
 
 	# Database methods (3)
