@@ -75,11 +75,6 @@ async def on_application_command_error(ctx, error) -> None:
     print('='*10)
     print(f"ERROR: {error} | Class: {error.__class__} | Cause: {error.__cause__}")
     print('='*10)
-    error_log = client.get_channel(error_log_channel_id)
-    if error_log:
-        await error_log.send('='*10)
-        await error_log.send(f"ERROR: {error} | Class: {error.__class__} | Cause: {error.__cause__}")
-        await error_log.send('='*10)
 
 @client.command()
 async def help(ctx: commands.Context, cmd: str = None) -> None:
@@ -190,8 +185,6 @@ for filename in os.listdir('./cogs'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
 
-
-@commands.cooldown(1, 1800, type=commands.BucketType.user)
 @client.slash_command(name="play", guild_ids=guild_ids)
 async def play_language(ctx: discord.ApplicationContext, mode:
     Option(str, name="mode", description="The gamemode you want to play", choices=['Singleplayer', 'Multiplayer'], required=True)
@@ -206,7 +199,6 @@ async def play_language(ctx: discord.ApplicationContext, mode:
     elif mode == 'Multiplayer':
         await cog._play_multiplayer_language_callback(ctx)
 
-@commands.cooldown(1, 5, commands.BucketType.user)
 @client.slash_command(name="samples", guild_ids=guild_ids)
 async def _samples_slash(ctx: discord.ApplicationContext) -> None:
     """ Shows how many audio samples and languages we currently have in The Language Jungle game. """

@@ -347,8 +347,7 @@ class Games(commands.Cog):
 			self.status = 'stop'
 			voice_client.stop()
 
-	@commands.cooldown(1, 1800, type=commands.BucketType.user)
-	@commands.command(name="play_singleplayer_language", aliases=['language', 'language jungle', 'jungle', 'lj', 'play', 'p'])
+	@commands.command(name="play_singleplayer_language", aliases=['language', 'language_jungle', 'jungle', 'lj', 'play', 'p'])
 	async def _play_singleplayer_language_command(self, ctx: commands.Context) -> None:
 		""" Plays the Language Jungle. (Singleplayer) """
 
@@ -368,31 +367,21 @@ class Games(commands.Cog):
 
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
-			msg = await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
-			ctx.message = msg
-			return self.client.get_command(ctx.command.name).reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.author.voice
 		if voice is None:
-			msg = await answer(f"**{member.mention}, you're not in the voice channel**")
-			ctx.message = msg
-			return self.client.get_command(ctx.command.name).reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you're not in the voice channel**")
 
 		if voice.channel.id != language_jungle_vc_id:
-			msg = await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
-			ctx.message = msg
-			return self.client.get_command(ctx.command.name).reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
 		if not self.ready:
-			msg = await answer("**I'm still downloading the audios, wait a bit!**")
-			ctx.message = msg
-			return self.client.get_command(ctx.command.name).reset_cooldown(ctx)
+			return await answer("**I'm still downloading the audios, wait a bit!**")
 
 		if self.active:
-			msg = await answer(f"**{member.mention}, someone is already playing!**")
-			ctx.message = msg
-			return self.client.get_command(ctx.command.name).reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, someone is already playing!**")
 
 		self.active = True
 		self.member_id = member.id
@@ -438,8 +427,6 @@ class Games(commands.Cog):
 			await the_txt.send("**The player left the voice channel, so it's game over!**")
 			await self.reset_bot_status()
 
-
-	@commands.cooldown(1, 360, type=commands.BucketType.guild)
 	@commands.command(name="play_multiplayer_language", aliases=['pmp', 'mp', 'multiplayer', 'zugumupu'])
 	async def _play_multiplayer_language_command(self, ctx: commands.Context) -> None:
 		""" Plays the Language Jungle. (Multiplayer) """
@@ -460,31 +447,21 @@ class Games(commands.Cog):
 
 		the_txt = self.txt
 		if ctx.channel.id != language_jungle_txt_id:
-			msg = await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
-			ctx.message = msg
-			return self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you can only use this command in {the_txt.mention}!**")
 
 		# Checks if the user is in a voice channel
 		voice = ctx.author.voice
 		if voice is None:
-			msg = await answer(f"**{member.mention}, you're not in the voice channel**")
-			ctx.message = msg
-			return self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you're not in the voice channel**")
 
 		if voice.channel.id != language_jungle_vc_id:
-			msg = await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
-			ctx.message = msg
-			return self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, you're not in the `Language Jungle` voice channel!**")
 
 		if not self.ready:
-			msg = await answer("**I'm still downloading the audios, wait a bit!**")
-			ctx.message = msg
-			return self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
+			return await answer("**I'm still downloading the audios, wait a bit!**")
 
 		if self.active:
-			msg = await answer(f"**{member.mention}, someone is already playing!**")
-			ctx.message = msg
-			return self.client.get_command('play_multiplayer_language').reset_cooldown(ctx)
+			return await answer(f"**{member.mention}, someone is already playing!**")
 
 		await self.reset_bot_status()
 		self.active = True
@@ -1217,7 +1194,8 @@ class Games(commands.Cog):
 		for m in await channel.history(limit=100).flatten():
 			if m.author == member and m.channel.id == channel.id:
 				new_ctx = await self.client.get_context(m)
-				self.client.get_command('_play_multiplayer_language_command').reset_cooldown(new_ctx)
+				self.client.get_command('language').reset_cooldown(new_ctx)
+				self.client.get_command('play_multiplayer_language').reset_cooldown(new_ctx)
 				return await ctx.send(f"**{member.mention}'s cooldown has been reset!**")
 		else:
 			await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
