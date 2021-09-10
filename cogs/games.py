@@ -324,9 +324,11 @@ class Games(commands.Cog):
 				await self.reset_bot_status()
 				guild = ctx.message.guild
 				voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
-				if voice_client and voice_client.is_playing():
+				try:
 					self.status = 'stop'
 					voice_client.stop()
+				except Exception as e:
+					pass
 				return await ctx.send("**Multiplayer session ended!**")
 			return await ctx.send(f"**{ctx.author.mention}, you cannot end a multiplayer session just like that!**")
 
@@ -487,7 +489,9 @@ class Games(commands.Cog):
 
 		self.embed = embed
 		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		await view.wait()
+		await asyncio.sleep(60)
+		view.stop()
+		# await view.wait()
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 
@@ -683,6 +687,8 @@ class Games(commands.Cog):
 		if self.status == 'stop':
 			self.status = 'normal'
 			return
+
+		print(self.status)
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
 			if m.author.id == member.id and m.channel.id == channel.id:
@@ -759,6 +765,7 @@ class Games(commands.Cog):
 			self.status = 'normal'
 			return
 
+		print(self.status)
 		await channel.send(f"🔰**`Audio played, GO!!`**🔰 ")
 
 		def check(m):
