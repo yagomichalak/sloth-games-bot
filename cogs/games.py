@@ -1,6 +1,5 @@
 import discord
 from extra import utils
-from discord.app.context import ApplicationContext
 from discord.ext import commands, tasks
 from extra.view import TheLanguageJungleMultiplayerView
 
@@ -472,20 +471,51 @@ class Games(commands.Cog):
 
 		embed = discord.Embed(
 			title="Setting up the Game...",
-			description='''
-			```React to this message in order to participate in the multiplayer game session!```
-			React 🔴 to enter red team;
-			React 🔵 to enter the blue team.
-			'''
+			description="""
+			```Click on the buttons of this message in order to participate in the multiplayer game session!```
+			Click on 🔴 to enter red team;
+			Click on 🔵 to enter the blue team.""",
+			color=member.color,
 			)
 		embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 		embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
 
 		wait_a_minutes: List[str] = [
 			'https://media1.tenor.com/images/81e68cca293ebd7656deec2bc582ef1c/tenor.gif?itemid=14484132',
+			'https://c.tenor.com/gPhmuKT6BBQAAAAS/wait-a-minute-steve-harvey.gif',
+			'https://c.tenor.com/Gjgw3iUuqpwAAAAC/the-fresh-prince-of-bel-air-wait-a-minute.gif',
+			'https://c.tenor.com/EYchkttDBEEAAAAS/wait-a-minute-wait.gif',
+			'https://c.tenor.com/dx7g9bNGnEoAAAAS/wait-just-a-minute-hold-up.gif',
+			'https://c.tenor.com/PqwOTw0bdf8AAAAS/wait-a-minute-chuck-nice.gif',
+			'https://c.tenor.com/pGOjJeJgNlkAAAAC/wait-a-minute-wendy-testaburger.gif',
+			'https://c.tenor.com/SBwwnEZ-I3cAAAAS/wait-a-minute-chuck-nice.gif',
+			'https://c.tenor.com/DJtANMTd0ioAAAAS/wait-a-minute-wait.gif',
+			'https://c.tenor.com/l5B-rrbKjL8AAAAS/wait-a-minute-betty-white.gif',
+			'https://c.tenor.com/E3-YxwCts9sAAAAS/filthy-frank-wait.gif',
+			'https://c.tenor.com/A5U44Ldj2x4AAAAC/wait-a-minute-steve-terreberry.gif',
+			'https://c.tenor.com/ZQfQ5cyrgkYAAAAC/wait-a-minute-afkayt.gif',
+			'https://c.tenor.com/xGeomYpj79kAAAAd/wait-a-minute-stop.gif',
+			'https://c.tenor.com/87F0ABbdLLkAAAAC/wait-a-minute-imani.gif',
+			'https://c.tenor.com/ixYJgUSNZqIAAAAd/wait-a-minute-anthony-mackie.gif',
+			'https://c.tenor.com/0YTByZ5DkNwAAAAC/wait-a-minute-linda-stotch.gif',
+			'https://c.tenor.com/nMl2o2BtaX8AAAAC/jknews-jkfilms.gif',
+			'https://c.tenor.com/fPy3Gx4ePzkAAAAC/dragons-den-wait-a-minute.gif',
+			'https://c.tenor.com/wNT-jBj0R5UAAAAC/hey-wait-a-minute-eric-cartman.gif',
+			'https://c.tenor.com/V0i-8GUL0RIAAAAd/oh-wait-a-minute-now-ella-payne.gif',
+			'https://c.tenor.com/ndo6dU7NRnkAAAAd/well-wait-a-minute-wait-a-minute.gif',
+			'https://c.tenor.com/w3lNgIB6OgsAAAAC/wait-a-minute-kevin-hart.gif',
+			'https://c.tenor.com/dUNNfdpuzhQAAAAC/trump-wait-a-minute.gif',
+			'https://c.tenor.com/R2RzLheXamwAAAAC/cbb2-cbbus2.gif',
+			'https://c.tenor.com/O6mtr_vCS0sAAAAC/oh-wait-a-minute-maggie-amato.gif',
+			'https://c.tenor.com/W-p2KNbKg_kAAAAC/wait-a-minute-hold-up.gif',
+			'https://c.tenor.com/e3NL0PJfK00AAAAd/what-shocked.gif',
+			'https://c.tenor.com/wVlcPMmDXDwAAAAC/wait-a-minute-hang-on-a-minute.gif',
+			'https://c.tenor.com/evjeXjRsYRsAAAAC/wait-a-minute-neil-degrasse-tyson.gif',
+			'https://c.tenor.com/LvbGko0yNrwAAAAC/hold-up-wait-a-minute.gif',
+
 		]
 
-		embed.set_image(url=choice(wait_a_minutes))
+		embed.set_image(url=random.choice(wait_a_minutes))
 		embed.set_footer(text=f"Queue started by {ctx.author}")
 		await answer("__**`Multiplayer`**__")
 		view = TheLanguageJungleMultiplayerView(self, 60)
@@ -604,7 +634,7 @@ class Games(commands.Cog):
 	
 		
 		board.save('language_jungle/multiplayer_session.png', 'png', quality=90)
-		await self.txt.send(file=discord.File('language_jungle/multiplayer_session.png'))
+		await self.txt.send(content="<a:10_countdown:891431770912858194>", file=discord.File('language_jungle/multiplayer_session.png'))
 
 	async def get_user_pfp(self, member: discord.Member) -> Any:
 		""" Get the user's profile picture.
@@ -705,8 +735,7 @@ class Games(commands.Cog):
 		try:
 			answer = await self.client.wait_for('message', timeout=30, check=check)
 		except asyncio.TimeoutError:
-			await channel.send(f"**{member.mention}, you took too long to answer!\nIt was {language}.**")
-			await channel.send("**-1 ❤️**")
+			await channel.send(f"**{member.mention}, you took too long to answer!\nIt was {language}.\n-1 ❤️**")
 			self.wrong_answers += 1
 			self.lives -= 1
 			self.questions[self.round] = [str(language).lower(), None]
@@ -727,8 +756,7 @@ class Games(commands.Cog):
 			# Otherwise it's a wrong answer
 			else:
 				we = '<:wrong:735204715415076954>'
-				await channel.send(f"{we} **You got it `wrong`, {member.mention}!\nIt was {language}.** {we}")
-				await channel.send("**-1 ❤️**")
+				await channel.send(f"{we} **You got it `wrong`, {member.mention}!\nIt was {language}. {we}\n-1 ❤️**")
 				self.wrong_answers += 1
 				self.lives -= 1
 				await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
@@ -736,8 +764,8 @@ class Games(commands.Cog):
 			# Checks if the member has remaining lives
 			if self.lives > 0:				
 				# Restarts the game if it's not the last round
-				if self.round < 10:
-					await channel.send(f"**New round in 10 seconds...**")
+				if self.round < 2:
+					await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 					await asyncio.sleep(10)
 					return await self.start_game(member, channel)
 				
@@ -842,8 +870,8 @@ class Games(commands.Cog):
 
 		finally:
 			# Restarts the game if it's not the last round
-			if self.round < 10:
-				await channel.send(f"**New round in 10 seconds...**")
+			if self.round < 1:
+				await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
 			
@@ -851,11 +879,6 @@ class Games(commands.Cog):
 			else:
 				blue_points = self.multiplayer['teams']['blue'][1]
 				red_points = self.multiplayer['teams']['red'][1]
-				await channel.send(f"💪 **End of the game, good job, teams!** 💪")
-				await channel.send(
-					f"**🔴__Red team__:\nRight answers: `{red_points}`.🔴**")
-				await channel.send(
-					f"**🔵__Blue team__:\nRight answers: `{blue_points}`.🔵**")
 				try:
 					await self.check_winner(red_points, blue_points)
 				except:
@@ -914,8 +937,8 @@ class Games(commands.Cog):
 
 		if answer_right:
 			# Restarts the game if it's not the last round
-			if self.round < 10:
-				await channel.send(f"**New round in 10 seconds...**")
+			if self.round < 2:
+				await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
 			
@@ -923,11 +946,6 @@ class Games(commands.Cog):
 			else:
 				blue_points = self.multiplayer['teams']['blue'][1]
 				red_points = self.multiplayer['teams']['red'][1]
-				await channel.send(f"💪 **End of the game, good job, teams!** 💪")
-				await channel.send(
-					f"**__Red team__:\nRight answers: `{red_points}`.**")
-				await channel.send(
-					f"**__Blue team__:\nRight answers: `{blue_points}`.**")
 				try:
 					await self.check_winner(red_points, blue_points)
 				except:
@@ -1040,40 +1058,60 @@ class Games(commands.Cog):
 		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking to `Cosmos △#7757`, to expand our game, we'd be pleased to hear it!**"))
 		await self.reset_bot_status()
 
-	async def check_winner(self, redp, bluep) -> None:
+	async def check_winner(self, redp: int, bluep: int) -> None:
 		""" Checks the winner of the game.
 		:param redp: Red team points.
 		:param bluep: Blue team points. """
 
+		
+		embed = discord.Embed(
+			title="__End of the Game__",
+			description="💪 Good job for both teams! 💪"
+		)
+
+		embed.add_field(name="🔴 __Red team__:", value=f"Right answers: `{redp}`.", inline=True)
+		embed.add_field(name="🔵 __Red team__:", value=f"Right answers: `{bluep}`.", inline=True)
+
 		channel = self.vc
+
 		if redp > bluep:
-			await self.txt.send("**🔴Red team won!🔴**")
+			embed.add_field(name="🎊 __Winning Team__:", value="The red team won! 🔴", inline=False)
+			embed.color = discord.Color.red()
 			winners = self.multiplayer['teams']['red'][0]
 			path = './language_jungle/Graphic/red wins.png'
-			await self.make_multiplayer_score_image(winners, path)
 			await self.audio('language_jungle/SFX/Red wins.mp3', channel)
 
-
 		elif bluep > redp:
-			await self.txt.send("**🔵Blue team won🔵!**")
+			embed.add_field(name="🎊 __Winning Team__:", value="The blue team won! 🔵", inline=False)
+			embed.color = discord.Color.blue()
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
-			try:
-				await self.make_multiplayer_score_image(winners, path)
-			except Exception as e:
-				await channel.send("**Something went wrong when sending the Score picture!**")
-				print('='*20)
-				print(f"Score Picture Error: {e}")
-				print('='*20)
 			await self.audio('language_jungle/SFX/Blue wins.mp3', channel)
 
 		else:
-			await self.txt.send("**It's a tie! No one wins!**")
+			winners = []
+			embed.add_field(name="🎊 __Winning Team__:", value="It's a tie, no one won! 🙅", inline=False)
+			embed.color = discord.Color.orange()
 
-		await self.reset_bot_status()
+		try:
+			if winners:
+				score_path: str = await self.make_multiplayer_score_image(winners, path)
+		except Exception as e:
+			await self.txt.send("**Something went wrong when sending the Score picture!**")
+			print('='*20)
+			print(f"Score Picture Error: {e}")
+			print('='*20)
+		else:
+			if winners:
+				embed.set_image(url="attachment://multiplayer_score_image.png")
+				await self.txt.send(embed=embed, file=discord.File(score_path, filename="multiplayer_score_image.png"))
+			else:
+				await self.txt.send(embed=embed)
+		finally:
+			await self.reset_bot_status()
 
 
-	async def make_multiplayer_score_image(self, winners: List[int], image_path: str) -> None:
+	async def make_multiplayer_score_image(self, winners: List[int], image_path: str) -> str:
 		""" Makes the multiplayer score image.
 		:param winners: The people in the winning team.
 		:param image_path: The path of the winning team's template image."""
@@ -1153,7 +1191,7 @@ class Games(commands.Cog):
 
 		score_path = './language_jungle/Graphic/multiplayer_score_result.png'
 		background.save(score_path)
-		await channel.send(file=discord.File(score_path))
+		return score_path
 		
 
 	# Database method (1)
