@@ -480,11 +480,16 @@ class Games(commands.Cog):
 			)
 		embed.add_field(name='🔴 __Red team__', value=f"{len(self.multiplayer['teams']['red'][0])}/5 players.", inline=True)
 		embed.add_field(name='🔵 __Blue team__', value=f"{len(self.multiplayer['teams']['blue'][0])}/5 players.", inline=True)
-		embed.set_image(url='https://media1.tenor.com/images/81e68cca293ebd7656deec2bc582ef1c/tenor.gif?itemid=14484132')
+
+		wait_a_minutes: List[str] = [
+			'https://media1.tenor.com/images/81e68cca293ebd7656deec2bc582ef1c/tenor.gif?itemid=14484132',
+		]
+
+		embed.set_image(url=choice(wait_a_minutes))
 		embed.set_footer(text=f"Queue started by {ctx.author}")
 		await answer("__**`Multiplayer`**__")
 		view = TheLanguageJungleMultiplayerView(self, 60)
-		msg = await ctx.channel.send(embed=embed, view=view)
+		msg = await ctx.channel.send(content="<a:60_countdown:891432099834388542>", embed=embed, view=view)
 		self.multiplayer['message_id'] = msg.id
 
 		self.embed = embed
