@@ -764,7 +764,7 @@ class Games(commands.Cog):
 			# Checks if the member has remaining lives
 			if self.lives > 0:				
 				# Restarts the game if it's not the last round
-				if self.round < 2:
+				if self.round < 10:
 					await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 					await asyncio.sleep(10)
 					return await self.start_game(member, channel)
@@ -870,7 +870,7 @@ class Games(commands.Cog):
 
 		finally:
 			# Restarts the game if it's not the last round
-			if self.round < 1:
+			if self.round < 10:
 				await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
@@ -937,7 +937,7 @@ class Games(commands.Cog):
 
 		if answer_right:
 			# Restarts the game if it's not the last round
-			if self.round < 2:
+			if self.round < 10:
 				await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
 				await asyncio.sleep(10)
 				return await self.start_multiplayer_game()
