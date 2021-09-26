@@ -314,12 +314,14 @@ class Games(commands.Cog):
 	async def stop(self, ctx: commands.Context) -> None:
 		""" Stops the game. """
 
-		if not self.active:
-			return await ctx.send(f"**{ctx.author.mention}, I'm not even playing yet!**")
+		author = ctx.author
 
-		perms = ctx.channel.permissions_for(ctx.author)
+		if not self.active:
+			return await ctx.send(f"**{author.mention}, I'm not even playing yet!**")
+
+		perms = ctx.channel.permissions_for(author)
 		if self.multiplayer_active:
-			if mod_role_id in [r.id for r in ctx.author.roles] or perms.administrator:
+			if await utils.is_allowed([mod_role_id]) or await utils.is_allowed_members([287746936587419648]):
 				await self.reset_bot_status()
 				guild = ctx.message.guild
 				voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
@@ -329,9 +331,9 @@ class Games(commands.Cog):
 				except Exception as e:
 					pass
 				return await ctx.send("**Multiplayer session ended!**")
-			return await ctx.send(f"**{ctx.author.mention}, you cannot end a multiplayer session just like that!**")
+			return await ctx.send(f"**{author.mention}, you cannot end a multiplayer session just like that!**")
 
-		if mod_role_id in [r.id for r in ctx.author.roles] or perms.administrator or self.member_id == ctx.author.id:
+		if self.member.id == author.id or await utils.is_allowed([mod_role_id]) or await utils.is_allowed_members([287746936587419648]):
 			await self.reset_bot_status()
 			guild = ctx.message.guild
 			voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)
@@ -340,7 +342,7 @@ class Games(commands.Cog):
 				voice_client.stop()
 			await ctx.send("**Session ended!**")
 		else:
-			return await ctx.send(f"{ctx.author.mention}, you're not the one who's playing, nor is a staff member")
+			return await ctx.send(f"{author.mention}, you're not the one who's playing, nor is a staff member")
 
 	async def stop_round(self, guild):
 		voice_client: discord.VoiceClient = discord.utils.get(self.client.voice_clients, guild=guild)

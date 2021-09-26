@@ -1,4 +1,5 @@
 import discord
+from discord import utils
 from discord.app.commands import Option
 from discord.ext import commands
 import os
@@ -132,7 +133,7 @@ async def help(ctx: commands.Context, cmd: str = None) -> None:
 
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@utils.is_allowed_members([287746936587419648], throw_exec=True)
 async def logout(ctx: commands.Context) -> None:
     """ Logs-out the bot. """
 
