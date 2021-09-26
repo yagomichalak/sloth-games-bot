@@ -133,7 +133,7 @@ async def help(ctx: commands.Context, cmd: str = None) -> None:
 
 
 @client.command()
-@utils.is_allowed_members([287746936587419648], throw_exec=True)
+@utils.is_allowed_members([287746936587419648], throw_exc=True)
 async def logout(ctx: commands.Context) -> None:
     """ Logs-out the bot. """
 
