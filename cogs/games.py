@@ -395,6 +395,10 @@ class Games(commands.Cog):
 		""" Starts the Language Jungle game.
 		:param member: The member who started the game.
 		:param the_txt: The game's main text channel. """
+
+		server_bot: discord.Member = member.guild.get_member(self.client.user.id)
+		if (bot_voice := server_bot.voice) and bot_voice.mute:
+			await server_bot.edit(mute=False)
 		
 		voice = member.voice
 		voice_client = member.guild.voice_client
@@ -547,6 +551,11 @@ class Games(commands.Cog):
 	
 	async def start_multiplayer_game(self) -> None:
 		""" Starts the multiplayer game mode. """
+
+		guild: discord.Guild = self.client.get_guild(server_id)
+		server_bot: discord.Member = guild.get_member(self.client.user.id)
+		if (bot_voice := server_bot.voice) and bot_voice.mute:
+			await server_bot.edit(mute=False)
 
 		the_txt = self.txt
 
@@ -1338,7 +1347,41 @@ class Games(commands.Cog):
 		await answer(embed=embed)
 
 
+	@commands.command(aliases=["stfu", "shutup", "shut_up", "silent", "quiet", "shh"])
+	@utils.is_allowed_members([287746936587419648], throw_exc=True)
+	async def silence(self, ctx) -> None:
+		""" Server mutes the bot until it starts reproducing language audio samples. """
 
+
+		if not self.setting_up and self.active:
+			return await ctx.reply("**I'm playing now, I can't just stop speaking!**")
+
+		server_bot: discord.Member = ctx.guild.get_member(self.client.user.id)
+
+		if (voice := server_bot.voice) and voice.mute:
+			return await ctx.reply("***Whisper: I'm already silenced!***")
+
+		if not voice:
+			return await ctx.reply("**Hey, I'm not in a VC, call me first, and then I'll do it!**")
+
+		await server_bot.edit(mute=True)
+		await ctx.reply("**I'll keep in silence for a bit 🤐!**")
+
+	@commands.command(aliases=["talk", "speak", "unsilent"])
+	@utils.is_allowed_members([287746936587419648], throw_exc=True)
+	async def unsilence(self, ctx) -> None:
+		""" Server unmutes the bot. """
+
+		server_bot: discord.Member = ctx.guild.get_member(self.client.user.id)
+
+		if (voice := server_bot.voice) and not voice.mute:
+			return await ctx.reply("**I'm not even silenced!**")
+
+		if not voice:
+			return await ctx.reply("**Hey, I'm not in a VC, call me first, and then I'll do it!**")
+
+		await server_bot.edit(mute=False)
+		await ctx.reply("**Shall I talk again 🤩!**")
 
 def setup(client):
 	client.add_cog(Games(client))
