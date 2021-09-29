@@ -733,11 +733,14 @@ class Games(commands.Cog):
 			self.status = 'normal'
 			return
 
-		print(self.status)
 		await channel.send(f"🔰**`Answer!` ({member.mention})**🔰 ")
 		def check(m):
 			if m.author.id == member.id and m.channel.id == channel.id:
 				# Checks whether user is in the VC to answer the question
+				if m.content.startswith('zg!stop'):
+					self.client.loop.create_task(self.stop_round(member.guild))
+					return False
+
 				return True
 				# member_state = member.voice
 				# return member_state and member_state.channel.id == self.vc.id
@@ -752,7 +755,6 @@ class Games(commands.Cog):
 			await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		else:
 			answer = answer.content
-			print(answer)
 			self.questions[self.round] = [str(language).lower(), str(answer).lower()]
 			if not answer:
 				return
@@ -808,7 +810,6 @@ class Games(commands.Cog):
 			self.status = 'normal'
 			return
 
-		print(self.status)
 		await channel.send(f"🔰**`Audio played, GO!!`**🔰 ")
 
 		def check(m):
