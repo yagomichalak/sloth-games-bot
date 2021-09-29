@@ -1077,6 +1077,7 @@ class Games(commands.Cog):
 
 		if redp > bluep:
 			embed.add_field(name="🎊 __Winning Team__:", value="The red team won! 🔴", inline=False)
+			embed.add_field(name="🎁 __Reward__:", value="Each player from the red team got 10łł! 🍃", inline=False)
 			embed.color = discord.Color.red()
 			winners = self.multiplayer['teams']['red'][0]
 			path = './language_jungle/Graphic/red wins.png'
@@ -1084,6 +1085,7 @@ class Games(commands.Cog):
 
 		elif bluep > redp:
 			embed.add_field(name="🎊 __Winning Team__:", value="The blue team won! 🔵", inline=False)
+			embed.add_field(name="🎁 __Reward__:", value="Each player from the blue team got 10łł! 🍃", inline=False)
 			embed.color = discord.Color.blue()
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
@@ -1092,11 +1094,23 @@ class Games(commands.Cog):
 		else:
 			winners = []
 			embed.add_field(name="🎊 __Winning Team__:", value="It's a tie, no one won! 🙅", inline=False)
+			embed.add_field(name="🎁 __Reward__:", value="Each player from both teams got 7łł! 🍃", inline=False)
 			embed.color = discord.Color.orange()
 
 		try:
 			if winners:
 				score_path: str = await self.make_multiplayer_score_image(winners, path)
+			else:
+				# Rewards both teams, in case of game drew itself
+				both_teams: List[int] = self.multiplayer['teams']['blue'][0]
+				both_teams.extend(self.multiplayer['teams']['red'][0])
+
+				for user_id in both_teams:
+					try:
+						await self.update_user_money(user_id, 7)
+					except Exception:
+						pass
+
 		except Exception as e:
 			await self.txt.send("**Something went wrong when sending the Score picture!**")
 			print('='*20)
