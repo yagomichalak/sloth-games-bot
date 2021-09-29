@@ -18,12 +18,23 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
 
         await interaction.response.defer()
 
-        print('Red team')
         red_team = self.cog.multiplayer['teams']['red'][0]
         blue_team = self.cog.multiplayer['teams']['blue'][0]
         # Checks whether user is in the blue team
         if member.id in blue_team:
-            return await interaction.followup.send(f"**You cannot join the blue team because you're in the red team already, {member.mention}!**", ephemeral=True)
+            if len(red_team) == 5:
+                return await interaction.followup.send(
+                    f"**You cannot join the red team because it's full, so you'll remain in the blue team, {member.mention}!**", ephemeral=True)
+
+            else:
+                try:
+                    blue_team.remove(member.id)
+                    red_team.append(member.id)
+                except:
+                    pass
+                else:
+                    await self.cog.update_multiplayer_message(interaction.message)
+                    return await interaction.followup.send(f"**You switched to the red team, {member.mention}!**", ephemeral=True)
 
         # Checks whether user is in the red team
         if member.id in red_team:
@@ -58,8 +69,22 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
         blue_team = self.cog.multiplayer['teams']['blue'][0]
         red_team = self.cog.multiplayer['teams']['red'][0]
         # Checks whether user is in the red team
+
         if member.id in red_team:
-            return await interaction.followup.send(f"**You cannot join the red team because you're in the blue team already, {member.mention}!**", ephemeral=True)
+            if len(blue_team) == 5:
+                return await interaction.followup.send(
+                    f"**You cannot join the red team because it's full, so you'll remain in the blue team, {member.mention}!**", ephemeral=True)
+
+            else:
+                try:
+                    red_team.remove(member.id)
+                    blue_team.append(member.id)
+                except:
+                    pass
+                else:
+                    await self.cog.update_multiplayer_message(interaction.message)
+                    return await interaction.followup.send(f"**You switched to the red team, {member.mention}!**", ephemeral=True)
+                
 
         if member.id in blue_team:
             try:
