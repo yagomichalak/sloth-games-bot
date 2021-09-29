@@ -1104,22 +1104,23 @@ class Games(commands.Cog):
 		else:
 			winners = []
 			embed.add_field(name="🎊 __Winning Team__:", value="It's a tie, no one won! 🙅", inline=False)
-			embed.add_field(name="🎁 __Reward__:", value="Each player from both teams got 7łł! 🍃", inline=False)
 			embed.color = discord.Color.orange()
 
 		try:
 			if winners:
 				score_path: str = await self.make_multiplayer_score_image(winners, path)
 			else:
-				# Rewards both teams, in case of game drew itself
-				both_teams: List[int] = self.multiplayer['teams']['blue'][0]
-				both_teams.extend(self.multiplayer['teams']['red'][0])
+				if redp + bluep >= 2:
+					embed.add_field(name="🎁 __Reward__:", value="Each player from both teams got 7łł! 🍃", inline=False)
+					# Rewards both teams, in case of game drew itself
+					both_teams: List[int] = self.multiplayer['teams']['blue'][0]
+					both_teams.extend(self.multiplayer['teams']['red'][0])
 
-				for user_id in both_teams:
-					try:
-						await self.update_user_money(user_id, 7)
-					except Exception:
-						pass
+					for user_id in both_teams:
+						try:
+							await self.update_user_money(user_id, 7)
+						except Exception:
+							pass
 
 		except Exception as e:
 			await self.txt.send("**Something went wrong when sending the Score picture!**")
