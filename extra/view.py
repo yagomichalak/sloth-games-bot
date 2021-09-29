@@ -83,7 +83,7 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
                     pass
                 else:
                     await self.cog.update_multiplayer_message(interaction.message)
-                    return await interaction.followup.send(f"**You switched to the red team, {member.mention}!**", ephemeral=True)
+                    return await interaction.followup.send(f"**You switched to the blue team, {member.mention}!**", ephemeral=True)
                 
 
         if member.id in blue_team:
