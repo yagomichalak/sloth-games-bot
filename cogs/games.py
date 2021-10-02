@@ -1081,7 +1081,7 @@ class Games(commands.Cog):
 		)
 
 		embed.add_field(name="🔴 __Red team__:", value=f"Right answers: `{redp}`.", inline=True)
-		embed.add_field(name="🔵 __Red team__:", value=f"Right answers: `{bluep}`.", inline=True)
+		embed.add_field(name="🔵 __Blue team__:", value=f"Right answers: `{bluep}`.", inline=True)
 
 		channel = self.vc
 
