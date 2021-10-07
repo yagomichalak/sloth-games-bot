@@ -137,7 +137,7 @@ class ChosenOptionButton(discord.ui.Button):
     """ Button of the soundboard. """
 
     def __init__(self, style: discord.ButtonStyle = discord.ButtonStyle.blurple, label: str = '\u200b', emoji: Optional[Union[str, discord.Emoji, discord.PartialEmoji]] = None, custom_id: Optional[str] = None, row: Optional[int] = None) -> None:
-        super().__init__(style=style, label=label, emoji=emoji, custom_id=custom_id, row=row)
+        super().__init__(style=style, label=label, emoji=emoji, custom_id=custom_id, row=row, disabled=True)
 
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -149,8 +149,8 @@ class ChosenOptionButton(discord.ui.Button):
 
 class ChooseOptionView(discord.ui.View):
 
-    def __init__(self, member: discord.Member, options: List[str], *, timeout: Optional[float] = 180):
-        super().__init__(timeout=timeout)
+    def __init__(self, member: discord.Member, options: List[str]):
+        super().__init__(timeout=None)
         self.member = member
         self.options = options
 

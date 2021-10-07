@@ -184,12 +184,13 @@ async def get_mentions(message: discord.Message) -> List[discord.Member]:
 
     return members
 
-async def disable_buttons(view: discord.ui.View) -> None:
+async def disable_buttons(view: discord.ui.View, maybe: bool = True) -> None:
     """ Disables all buttons from a view.
-    :param view: The view from which to disable the buttons. """
+    :param view: The view from which to disable the buttons.
+    :param maybe: Whether to enable buttons or not. [Default = True] """
 
     for child in view.children:
-        child.disabled = True
+        child.disabled = maybe
 
 
 async def audio(client: commands.Bot, voice_channel: discord.VoiceChannel, member: discord.Member, audio_path: str) -> None:
@@ -201,7 +202,6 @@ async def audio(client: commands.Bot, voice_channel: discord.VoiceChannel, membe
 
     # Resolves bot's channel state
     bot_state = member.guild.voice_client
-
     try:
         if bot_state and bot_state.channel and bot_state.channel != voice_channel:
             await bot_state.disconnect()
@@ -224,5 +224,4 @@ async def audio(client: commands.Bot, voice_channel: discord.VoiceChannel, membe
             print('couldnt play it!')
 
     except Exception as e:
-        print(e)
         return

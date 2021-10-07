@@ -90,7 +90,8 @@ class TheLanguageStory(commands.Cog):
                     await self.download_recursively(drive, download_path, new_category, file['id'])
 
 
-    @commands.command(aliases=['story'])
+    @commands.command(hidden=True, aliases=['story'])
+    @commands.is_owner()
     async def start_ls_game_command(self, ctx) -> None:
         """ Starts the Language Story game. """
 
@@ -125,7 +126,7 @@ class TheLanguageStory(commands.Cog):
 
             # Plays the song
             if not voice_client.is_playing():
-                audio_source = f"{self.root_path}/story/{story['name']}/audio.mp3"
+                audio_source = f"{self.root_path}/Stories/{story['name']}/audio.mp3"
 
                 embed = discord.Embed(
                     title=f"__`The Story starts now! ({story['name']})`__",
@@ -134,8 +135,19 @@ class TheLanguageStory(commands.Cog):
                 )
                 view: discord.ui.View = ChooseOptionView(member, story['options'])
                 msg = await self.txt.send(content="\u200b", embed=embed, view=view)
-                # await utils.audio(self.client, voice_client, member, audio_path=audio_source)
-                # voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_choice_response(member, story['options'])))
+                await utils.audio(self.client, voice_client.channel, member, audio_path=audio_source)
+                print('am I being ran?')
+                # voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_choice_response(member, story)))
+                print('teste')
+                voice_client.play(audio_source, after=lambda e: view.stop())
+                print('teste2')
+                view.stop()
+                print('teste3')
+                await view.wait()
+                print('teste4')
+                utils.disable_buttons(view, False)
+                await msg.edit(view=view)
+                print('kekekek')
 
         else:
             # (to-do) send a message to a specific channel
@@ -172,10 +184,10 @@ class TheLanguageStory(commands.Cog):
         return story
 
 
-    async def get_choice_response(self, member: discord.Member, options: List[str]) -> None:
+    async def get_choice_response(self, member: discord.Member, story: Dict[str, str]) -> None:
         """ Gets a choice response from the user.
         :param member: The member to get the response from.
-        :param options: The options the user have. """
+        :param story: The story data. """
 
         pass
 
