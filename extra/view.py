@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from typing import Optional
+from typing import Optional, List, Union
 
 class TheLanguageJungleMultiplayerView(discord.ui.View):
     """ Handles who joins and leaves the red/blue teams. """
@@ -130,3 +130,30 @@ class TheLanguageJungleMultiplayerView(discord.ui.View):
         # if not member_state or member_state.channel.id != self.cog.vc.id:
         # 	return await interaction.response.send(f"**You are not in the VC, {interaction.user.mention}!**")
         return await super().interaction_check(interaction)
+
+
+
+class ChosenOptionButton(discord.ui.Button):
+    """ Button of the soundboard. """
+
+    def __init__(self, style: discord.ButtonStyle = discord.ButtonStyle.blurple, label: str = '\u200b', emoji: Optional[Union[str, discord.Emoji, discord.PartialEmoji]] = None, custom_id: Optional[str] = None, row: Optional[int] = None) -> None:
+        super().__init__(style=style, label=label, emoji=emoji, custom_id=custom_id, row=row)
+
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        """ Soundboard's button callback. """
+
+        await interaction.response.defer()
+        
+        await interaction.followup.send(f"**You chose: `{interaction.data}`!**")
+
+class ChooseOptionView(discord.ui.View):
+
+    def __init__(self, member: discord.Member, options: List[str], *, timeout: Optional[float] = 180):
+        super().__init__(timeout=timeout)
+        self.member = member
+        self.options = options
+
+        for i, option in enumerate(options):
+            button: discord.ui.Button = ChosenOptionButton(style=discord.ButtonStyle.blurple, label=option, custom_id=f"option_{i+1}")
+            self.add_item(button)

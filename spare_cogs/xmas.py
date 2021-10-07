@@ -28,7 +28,7 @@ class Xmas(commands.Cog):
 	async def on_ready(self) -> None:
 		""" Tells when the cog is ready to use. """
 
-		print('Tests cog is online')
+		print('Xmas cog is online')
 		await self.drop_item()
 
 
