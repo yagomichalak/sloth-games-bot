@@ -6,6 +6,7 @@ token.txt
 venv/
 audios/
 language_jungle/
+language_story/
 sloth_custom_images/
 __pycache__/
 .idea/

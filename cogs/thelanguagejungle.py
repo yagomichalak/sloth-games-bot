@@ -6,6 +6,7 @@ from extra.view import TheLanguageJungleMultiplayerView
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from mysqldb import the_database
+from external_cons import the_drive
 
 import os
 import shutil
@@ -24,34 +25,7 @@ cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
 server_id = int(os.getenv('SERVER_ID'))
 
-# Starts the GoogleDrive connection
-gauth = GoogleAuth()
-# gauth.LocalWebserverAuth()
-gauth.LoadCredentialsFile("mycreds.txt")
-if gauth.credentials is None:
-	# This is what solved the issues:
-	gauth.GetFlow()
-	gauth.flow.params.update({'access_type': 'offline'})
-	gauth.flow.params.update({'approval_prompt': 'force'})
-
-	# Authenticate if they're not there
-	gauth.LocalWebserverAuth()
-
-elif gauth.access_token_expired:
-
-	# Refresh them if expired
-	gauth.Refresh()
-else:
-
-	# Initialize the saved creds
-	gauth.Authorize()
-
-# Save the current credentials to a file
-gauth.SaveCredentialsFile("mycreds.txt")
-
-drive = GoogleDrive(gauth)
-
-class Games(commands.Cog):
+class TheLanguageJungle(commands.Cog):
 	""" Category for game related commands. """
 
 	def __init__(self, client: commands.Bot) -> None:
@@ -222,6 +196,8 @@ class Games(commands.Cog):
 				print(f"{category} folder made!")
 			except FileExistsError:
 				pass
+
+		drive = await the_drive()
 
 		for folder, folder_id in all_folders.items():
 			files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
@@ -1386,4 +1362,4 @@ class Games(commands.Cog):
 		await ctx.reply("**Shall I talk again 🤩!**")
 
 def setup(client):
-	client.add_cog(Games(client))
+	client.add_cog(TheLanguageJungle(client))
