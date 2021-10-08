@@ -21,6 +21,8 @@ class TheLanguageStory(commands.Cog):
         self.client = client
         self.stories_played: List[str] = []
         self.root_path: str = './language_story'
+        self.round: int = 0
+        self.story_name: str = None
 
 
     @commands.Cog.listener()
@@ -97,11 +99,15 @@ class TheLanguageStory(commands.Cog):
 
         author = ctx.author
 
-        await self.start_ls_game_callback(author)
+        story_path: str = f"{self.root_path}/Stories"
+        # Gets a random language audio
+        await self.reset_bot_status()
+        await self.start_ls_game_callback(story_path, author)
 
 
-    async def start_ls_game_callback(self, member: discord.Member) -> None:
-        """ Starts the Language Story game.
+    async def start_ls_game_callback(self, story_path: str, member: discord.Member) -> None:
+        """ Starts the Language Story game..
+        :param story_path: The path of the current or next audio to be played.
         :param member: The member who started the game. """
 
         server_bot: discord.Member = member.guild.get_member(self.client.user.id)
@@ -121,41 +127,52 @@ class TheLanguageStory(commands.Cog):
 
         # Checks if the bot is in the same voice channel that the user
         if voice and voice.channel == voice_client.channel:
-            # Gets a random language audio
-            story = await self.get_random_story()
 
             # Plays the song
             if not voice_client.is_playing():
-                audio_source = f"{self.root_path}/Stories/{story['name']}/audio.mp3"
+            
+                self.round += 1
+
+                if self.round == 1:
+                    story = await self.get_random_story(story_path, True)
+                    story_path = f"{story_path}/{story['name']}"
+                    text: str = story['text']
+                else:
+                    story = await self.get_random_story(story_path)
+                    text: str = await self.get_new_text(story_path)
 
                 embed = discord.Embed(
                     title=f"__`The Story starts now! ({story['name']})`__",
-                    description=f"Text:\n\n{story['text']}",
+                    description=f"Text:\n\n{text}",
                     color=discord.Color.green()
                 )
-                view: discord.ui.View = ChooseOptionView(member, story['options'])
+                view: discord.ui.View = ChooseOptionView(cog=self, member=member, story=story, story_path=story_path)
                 msg = await self.txt.send(content="\u200b", embed=embed, view=view)
-                await utils.audio(self.client, voice_client.channel, member, audio_path=audio_source)
-                print('am I being ran?')
-                # voice_client.play(audio_source, after=lambda e: self.client.loop.create_task(self.get_choice_response(member, story)))
-                print('teste')
-                voice_client.play(audio_source, after=lambda e: view.stop())
-                print('teste2')
-                view.stop()
-                print('teste3')
-                await view.wait()
-                print('teste4')
-                utils.disable_buttons(view, False)
-                await msg.edit(view=view)
-                print('kekekek')
+                voice_client.play(discord.FFmpegPCMAudio(f"{story_path}/audio.mp3"), after=lambda e: self.client.loop.create_task(self.enable_answers(msg, view)))
 
         else:
             # (to-do) send a message to a specific channel
             await self.txt.send("**The player left the voice channel, so it's game over!**")
 
+    async def enable_answers(self, message: discord.Message, view: discord.ui.View) -> None:
+        """ Enables the buttons from the view, so the user can continue the game. """
 
-    async def get_random_story(self) -> List[Any]:
-        """ Gets a random story to play """
+        await utils.disable_buttons(view, False)
+        await message.edit(view=view)
+
+    async def get_new_text(self, story_path: str) -> str:
+        """ Gets a new text to display.
+        :param story_path: The path from which to get the text. """
+
+        with open(f"{story_path}/text.txt", 'r', encoding="utf-8") as f:
+            text: str = f.read()
+
+        return text
+
+
+    async def get_random_story(self, folder: str, random: bool = False) -> List[Any]:
+        """ Gets a random story to play.
+        :param folder: The folder from which to start looking. """
 
         story: Dict[str, str] = {
             'name': None,
@@ -165,21 +182,38 @@ class TheLanguageStory(commands.Cog):
         }
 
         while True:
-            story_name = choice(os.listdir(f"{self.root_path}/Stories/"))
-            if story_name not in self.stories_played:
-                with open(f"{self.root_path}/Stories/{story_name}/text.txt", encoding="utf-8") as f:
-                    text = f.read()
 
+            search_path: str = folder
+            if random:
+                story_name = choice(os.listdir(f"{self.root_path}/Stories/"))
+                search_path = f"{folder}/{story_name}"
+                if story_name in self.stories_played:
+                    continue
+                self.story_name = story_name
+                
                 story['name'] = story_name
-                story['text'] = text
-                story['audio'] = f"{self.root_path}/Stories/{story_name}/audio.mp3"
-                option_path: str = f"{self.root_path}/Stories/{story_name}"
+                story['audio'] = f"{folder}/{story_name}/audio.mp3"
+                option_path: str = f"{folder}/{story_name}"
                 story['options'] = [
                     file for file in os.listdir(option_path)
                     if os.path.isdir(f"{option_path}/{file}")
                 ]
-                break
-            continue
+            
+            else:
+                story_name = self.story_name
+                story['name'] = story_name
+                story['audio'] = f"{folder}/audio.mp3"
+                option_path: str = f"{folder}/"
+                story['options'] = [
+                    file for file in os.listdir(option_path)
+                    if os.path.isdir(f"{option_path}/{file}")
+                ]
+
+            with open(f"{search_path}/text.txt", encoding="utf-8") as f:
+                text = f.read()
+                story['text'] = text
+
+            break
 
         return story
 
@@ -190,6 +224,14 @@ class TheLanguageStory(commands.Cog):
         :param story: The story data. """
 
         pass
+
+    async def reset_bot_status(self) -> None:
+        """ Resets the bot's status to its original state. """
+
+        self.stories_played: List[str] = []
+        self.root_path: str = './language_story'
+        self.round: int = 0
+        self.story_name: str = None
 
 def setup(client) -> None:
     client.add_cog(TheLanguageStory(client))
