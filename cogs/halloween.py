@@ -55,12 +55,13 @@ class Halloween(commands.Cog):
 		you_user = await self._get_user_amount_of_items(member.id)
 		if icon := ctx.guild.icon:
 			embed.set_thumbnail(url=icon.url)
-		embed.set_footer(text=f"You: {you_user[1]} items")
+		embed.set_footer(text=f"You: {you_user[1] if you_user else 0} items")
 		await ctx.send(embed=embed)
 
 
 	@commands.command(aliases=["inv"])
 	async def inventory(self, ctx) -> None:
+		""" Open your candy inventory. """
 
 		member = ctx.author
 
