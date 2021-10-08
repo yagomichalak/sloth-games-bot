@@ -11,14 +11,14 @@ from extra.xmas import items, questions
 
 
 
-class Xmas(commands.Cog):
+class Halloween(commands.Cog):
 	""" A category for the TLS' Christmas-themed game. """
 
 	def __init__(self, client) -> None:
 		""" Class initializing method. """
 
 		self.client = client
-		self.xmas_channel_id: int = int(os.getenv('XMAS_CHANNEL_ID'))
+		self.halloween_channel_id: int = int(os.getenv('XMAS_CHANNEL_ID'))
 		self.questions = questions['all'][:]
 		random.shuffle(self.questions)
 		self.all_questions = cycle(self.questions)
@@ -28,7 +28,7 @@ class Xmas(commands.Cog):
 	async def on_ready(self) -> None:
 		""" Tells when the cog is ready to use. """
 
-		print('Xmas cog is online')
+		print('Hallowen cog is online')
 		await self.drop_item()
 
 
@@ -53,7 +53,8 @@ class Xmas(commands.Cog):
 			)
 		
 		you_user = await self._get_user_amount_of_items(member.id)
-		embed.set_thumbnail(url=ctx.guild.icon_url)
+		if icon := ctx.guild.icon:
+			embed.set_thumbnail(url=icon.url)
 		embed.set_footer(text=f"You: {you_user[1]} items")
 		await ctx.send(embed=embed)
 
@@ -90,7 +91,7 @@ class Xmas(commands.Cog):
 
 				embed = await self.get_embed(item, item_type, item_image, question)
 
-				channel = await self.client.fetch_channel(self.xmas_channel_id)
+				channel = await self.client.fetch_channel(self.halloween_channel_id)
 				om = await channel.send(embed=embed)
 				user_got_right = await self.get_user_response(embed, channel, question['answer'], om, item['emoji'])
 
@@ -142,9 +143,9 @@ class Xmas(commands.Cog):
 		:param item_type: The type of the item for which the image is gonna be. """
 
 		images = {
-			"Very Common": "https://cdn.discordapp.com/attachments/675668962385723393/783998401800044544/rare_3.png",
-			"Common": "https://cdn.discordapp.com/attachments/675668962385723393/783998366681006080/rare_1.png",
-			"Rare": "https://cdn.discordapp.com/attachments/675668962385723393/783998381701726208/rare_2.png"
+			"Very Common": "https://cdn.discordapp.com/attachments/851097963504599090/895795667790876712/very_common.png",
+			"Common": "https://cdn.discordapp.com/attachments/851097963504599090/895795694961586176/common.png",
+			"Rare": "https://cdn.discordapp.com/attachments/851097963504599090/895795719380799528/rare.png"
 		}
 
 		return images[item_type]
@@ -323,4 +324,4 @@ class Xmas(commands.Cog):
 def setup(client) -> None:
 	""" Cog's setup function. """
 
-	client.add_cog(Xmas(client))
+	client.add_cog(Halloween(client))
