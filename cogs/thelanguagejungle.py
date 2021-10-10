@@ -1036,7 +1036,7 @@ class TheLanguageJungle(commands.Cog):
 		await channel.send(file=discord.File(path))
 		if self.lives:
 			try:
-				await self.update_user_money(self.member_id, 10)
+				await self.update_user_money(self.member_id, 5)
 			except Exception:
 				pass
 			else:
@@ -1094,7 +1094,7 @@ class TheLanguageJungle(commands.Cog):
 
 					for user_id in both_teams:
 						try:
-							await self.update_user_money(user_id, 7)
+							await self.update_user_money(user_id, 2)
 						except Exception:
 							pass
 
@@ -1185,7 +1185,7 @@ class TheLanguageJungle(commands.Cog):
 				# if not member_state or member_state.channel.id != self.vc.id:
 				# 	continue
 
-				await self.update_user_money(member.id, 3)
+				await self.update_user_money(member.id, 5)
 			except Exception as e:
 				print(e)
 				pass
