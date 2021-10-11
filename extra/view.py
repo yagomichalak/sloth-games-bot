@@ -146,12 +146,9 @@ class ChosenOptionButton(discord.ui.Button):
         """ Soundboard's button callback. """
 
         await interaction.response.defer()
-
+        self.view.stop()
         new_story_path: str = f"{self.view.story_path}/{self.label}"
-        print('new audio path', new_story_path)
-
         await self.view.cog.start_ls_game_callback(new_story_path, self.view.member)
-        await interaction.followup.send(f"**You chose: `{interaction.data}`!**")
 
 class ChooseOptionView(discord.ui.View):
 
