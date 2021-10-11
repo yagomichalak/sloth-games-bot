@@ -1036,7 +1036,7 @@ class TheLanguageJungle(commands.Cog):
 		await channel.send(file=discord.File(path))
 		if self.lives:
 			try:
-				await self.update_user_money(self.member_id, 5)
+				await self.update_user_money(self.member_id, 10)
 			except Exception:
 				pass
 			else:
@@ -1063,7 +1063,7 @@ class TheLanguageJungle(commands.Cog):
 
 		if redp > bluep:
 			embed.add_field(name="🎊 __Winning Team__:", value="The red team won! 🔴", inline=False)
-			embed.add_field(name="🎁 __Reward__:", value="Each player from the red team got 10łł! 🍃", inline=False)
+			embed.add_field(name="🎁 __Reward__:", value="Each player from the red team got 5łł! 🍃", inline=False)
 			embed.color = discord.Color.red()
 			winners = self.multiplayer['teams']['red'][0]
 			path = './language_jungle/Graphic/red wins.png'
@@ -1071,7 +1071,7 @@ class TheLanguageJungle(commands.Cog):
 
 		elif bluep > redp:
 			embed.add_field(name="🎊 __Winning Team__:", value="The blue team won! 🔵", inline=False)
-			embed.add_field(name="🎁 __Reward__:", value="Each player from the blue team got 10łł! 🍃", inline=False)
+			embed.add_field(name="🎁 __Reward__:", value="Each player from the blue team got 5łł! 🍃", inline=False)
 			embed.color = discord.Color.blue()
 			winners = self.multiplayer['teams']['blue'][0]
 			path = './language_jungle/Graphic/blue wins.png'
@@ -1087,7 +1087,7 @@ class TheLanguageJungle(commands.Cog):
 				score_path: str = await self.make_multiplayer_score_image(winners, path)
 			else:
 				if redp + bluep >= 2:
-					embed.add_field(name="🎁 __Reward__:", value="Each player from both teams got 7łł! 🍃", inline=False)
+					embed.add_field(name="🎁 __Reward__:", value="Each player from both teams got 2łł! 🍃", inline=False)
 					# Rewards both teams, in case of game drew itself
 					both_teams: List[int] = self.multiplayer['teams']['blue'][0]
 					both_teams.extend(self.multiplayer['teams']['red'][0])
