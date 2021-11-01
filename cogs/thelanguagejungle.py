@@ -269,6 +269,8 @@ class TheLanguageJungle(commands.Cog):
 			except FileExistsError:
 				pass
 
+		drive = await the_drive()
+
 		for folder, folder_id in all_folders.items():
 			files = drive.ListFile({'q': "'%s' in parents and trashed=false" % folder_id}).GetList()
 			download_path = f'./sloth_custom_images/{folder}'
