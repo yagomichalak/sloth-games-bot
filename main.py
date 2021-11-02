@@ -194,7 +194,7 @@ async def play_language(ctx: discord.ApplicationContext, mode:
 
     await ctx.defer()
 
-    cog = client.get_cog('Games')
+    cog = client.get_cog('TheLanguageJungle')
     if mode == 'Singleplayer':
         await cog._play_singleplayer_language_callback(ctx)
     elif mode == 'Multiplayer':
@@ -206,6 +206,6 @@ async def _samples_slash(ctx: discord.ApplicationContext) -> None:
 
     await ctx.defer()
 
-    await client.get_cog('Games')._samples_callback(ctx)
+    await client.get_cog('TheLanguageJungle')._samples_callback(ctx)
 
 client.run(token)

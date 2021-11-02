@@ -82,10 +82,9 @@ class Tools(commands.Cog):
 	@commands.command()
 	@commands.is_owner()
 	async def eval(self, ctx, *, body = None):
-		'''
-		(ADM) Executes a given command from Python onto Discord.
-		:param body: The body of the command.
-		'''
+		""" (ADM) Executes a given command from Python onto Discord.
+		:param body: The body of the command. """
+
 		if not body:
 			return await ctx.send("**Please, inform the code body!**")
 
