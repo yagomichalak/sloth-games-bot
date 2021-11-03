@@ -55,6 +55,7 @@ class TheLanguageJungle(commands.Cog):
 		self.round_active = False
 		self.current_answer = None
 		self.setting_up = False
+		self.current_ts: int = None
 		
 	@commands.Cog.listener()
 	async def on_ready(self) -> None:
@@ -562,6 +563,7 @@ class TheLanguageJungle(commands.Cog):
 					color=discord.Color.green()
 				)
 			await the_txt.send(embed=embed)
+			self.current_ts: int = await utils.get_timestamp()
 			voice_client.play(audio_source, 
 			after=lambda e: self.client.loop.create_task(
 				self.get_multiplayer_language_response_after(
@@ -793,6 +795,8 @@ class TheLanguageJungle(commands.Cog):
 		def check(m):
 			member = m.author
 			if m.channel.id == channel.id:
+				new_current_ts: int = self.client.loop.create_task(utils.get_timestamp())
+
 
 				# Checks whether user is in the VC to answer the question
 				# member_state = member.voice
@@ -808,11 +812,9 @@ class TheLanguageJungle(commands.Cog):
 						
 						self.client.loop.create_task(self.stop_round(m.guild))
 
-						self.client.loop.create_task(
-							self.txt.send(
-								f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵"
-								)
-							)
+						text: str = f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵 " \
+							f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+						self.client.loop.create_task(self.txt.send(text))
 						self.multiplayer['teams']['blue'][1] += 1
 						self.questions[self.round] = [None, str(language).lower()]
 						self.client.loop.create_task(
@@ -829,11 +831,9 @@ class TheLanguageJungle(commands.Cog):
 
 						self.client.loop.create_task(self.stop_round(m.guild))
 
-						self.client.loop.create_task(
-							self.txt.send(
-								f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴"
-								)
-							)
+						text: str = f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴 " \
+							f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+						self.client.loop.create_task(self.txt.send(text))
 						self.multiplayer['teams']['red'][1] += 1
 						self.questions[self.round] = [str(language).lower(), None]
 						self.client.loop.create_task(
@@ -879,6 +879,7 @@ class TheLanguageJungle(commands.Cog):
 		:param language: The language/answer of the round.
 		:param message: The user message. """
 
+		new_current_ts: int = await utils.get_timestamp()
 		channel = self.txt
 		m = message
 		answer_right = False
@@ -899,9 +900,11 @@ class TheLanguageJungle(commands.Cog):
 				
 				await self.stop_round(m.guild)
 
-				await self.txt.send(
-					f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵"
-				)
+
+
+				text: str = f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵 " \
+					f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+				await self.txt.send(text)
 				self.multiplayer['teams']['blue'][1] += 1
 				self.questions[self.round] = [None, str(language).lower()]
 				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
@@ -916,9 +919,9 @@ class TheLanguageJungle(commands.Cog):
 
 				await self.stop_round(m.guild)
 
-				await self.txt.send(
-					f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴"
-				)
+				text: str = f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴 " \
+					f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+				await self.txt.send(text)
 				self.multiplayer['teams']['red'][1] += 1
 				self.questions[self.round] = [str(language).lower(), None]
 				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
@@ -1233,6 +1236,7 @@ class TheLanguageJungle(commands.Cog):
 				},
 			'message_id': None
 		}
+		self.current_ts = None
 
 
 	# @commands.command(aliases=['refresh', 'rfcd', 'reset'])
