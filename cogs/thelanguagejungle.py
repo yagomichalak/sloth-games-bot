@@ -795,8 +795,7 @@ class TheLanguageJungle(commands.Cog):
 		def check(m):
 			member = m.author
 			if m.channel.id == channel.id:
-				new_current_ts: int = self.client.loop.create_task(utils.get_timestamp())
-
+				new_current_ts: int = utils.get_timestamp_sync()
 
 				# Checks whether user is in the VC to answer the question
 				# member_state = member.voice
