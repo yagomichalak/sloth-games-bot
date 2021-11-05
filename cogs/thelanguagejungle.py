@@ -1,4 +1,5 @@
 import discord
+from discord.app.commands import slash_command
 from extra import utils
 from discord.ext import commands, tasks
 from extra.view import TheLanguageJungleMultiplayerView
@@ -26,6 +27,8 @@ language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
 cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
 server_id = int(os.getenv('SERVER_ID'))
+
+guild_ids: List[int] = [server_id]
 
 jungle_cogs: List[commands.Cog] = [
 	FastestAnswersTable
@@ -1379,6 +1382,13 @@ class TheLanguageJungle(*jungle_cogs):
 	async def answers_leaderboard_command(self, ctx) -> None:
 		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer) """
 
+		await self.answer_leaderboard_callback(ctx)
+
+	@slash_command(name="answers_leaderboard", guild_ids=guild_ids)
+	async def answers_leaderboard_slash(self, ctx) -> None:
+		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer) """
+
+		await ctx.defer()
 		await self.answer_leaderboard_callback(ctx)
 
 	async def answer_leaderboard_callback(self, ctx) -> None:
