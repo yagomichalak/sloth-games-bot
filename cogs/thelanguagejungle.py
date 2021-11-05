@@ -1,5 +1,5 @@
 import discord
-from discord.app.commands import slash_command
+from discord.app.commands import slash_command, Option
 from extra import utils
 from discord.ext import commands, tasks
 from extra.view import TheLanguageJungleMultiplayerView
@@ -1377,6 +1377,27 @@ class TheLanguageJungle(*jungle_cogs):
 
 		await server_bot.edit(mute=False)
 		await ctx.reply("**Shall I talk again 🤩!**")
+
+
+	@slash_command(name="play", guild_ids=guild_ids)
+	async def play_language(self, ctx: discord.ApplicationContext, mode:
+		Option(str, name="mode", description="The gamemode you want to play", choices=['Singleplayer', 'Multiplayer'], required=True)
+		) -> None:
+		""" Plays The Language Jungle game. """
+
+		await ctx.defer()
+		if mode == 'Singleplayer':
+			await self._play_singleplayer_language_callback(ctx)
+		elif mode == 'Multiplayer':
+			await self._play_multiplayer_language_callback(ctx)
+
+	@slash_command(name="samples", guild_ids=guild_ids)
+	async def _samples_slash(self, ctx: discord.ApplicationContext) -> None:
+		""" Shows how many audio samples and languages we currently have in The Language Jungle game. """
+
+		await ctx.defer()
+
+		await self._samples_callback(ctx)
 
 	@commands.command(name="answers_leaderboard", aliases=["al", "alb", "answer_leaderboard", "asl", "aslb"])
 	async def answers_leaderboard_command(self, ctx) -> None:

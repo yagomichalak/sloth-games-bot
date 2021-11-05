@@ -92,7 +92,8 @@ async def help(ctx: commands.Context, cmd: str = None) -> None:
 
       for cog in client.cogs:
           cog = client.get_cog(cog)
-          commands = [c.name for c in cog.get_commands() if not c.hidden]
+          cog_commands = [c for c in cog.__cog_commands__ if hasattr(c, 'parent') and c.parent is None]
+          commands = [c.name for c in cog_commands if not c.hidden]
           if commands:
             embed.add_field(
             name=f"__{cog.qualified_name}__",
@@ -120,7 +121,8 @@ async def help(ctx: commands.Context, cmd: str = None) -> None:
       if str(cog).lower() == str(cmd).lower():
           cog = client.get_cog(cog)
           cog_embed = discord.Embed(title=f"__Cog:__ {cog.qualified_name}", description=f"__**Description:**__\n```{cog.description}```", color=ctx.author.color, timestamp=ctx.message.created_at)
-          for c in cog.get_commands():
+          cog_commands = [c for c in cog.__cog_commands__ if hasattr(c, 'parent') and c.parent is None]
+          for c in cog_commands:
               if not c.hidden:
                   cog_embed.add_field(name=c.name,value=c.help,inline=False)
 
@@ -184,28 +186,5 @@ async def reload(ctx: commands.Context, extension: str = None) -> None:
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
-
-
-@client.slash_command(name="play", guild_ids=guild_ids)
-async def play_language(ctx: discord.ApplicationContext, mode:
-    Option(str, name="mode", description="The gamemode you want to play", choices=['Singleplayer', 'Multiplayer'], required=True)
-    ) -> None:
-    """ Plays The Language Jungle game. """
-
-    await ctx.defer()
-
-    cog = client.get_cog('TheLanguageJungle')
-    if mode == 'Singleplayer':
-        await cog._play_singleplayer_language_callback(ctx)
-    elif mode == 'Multiplayer':
-        await cog._play_multiplayer_language_callback(ctx)
-
-@client.slash_command(name="samples", guild_ids=guild_ids)
-async def _samples_slash(ctx: discord.ApplicationContext) -> None:
-    """ Shows how many audio samples and languages we currently have in The Language Jungle game. """
-
-    await ctx.defer()
-
-    await client.get_cog('TheLanguageJungle')._samples_callback(ctx)
 
 client.run(token)
