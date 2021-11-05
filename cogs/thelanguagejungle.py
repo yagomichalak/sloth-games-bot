@@ -8,6 +8,8 @@ from pydrive.drive import GoogleDrive
 from mysqldb import the_database
 from external_cons import the_drive
 
+from extra.jungle.fastestanswers import FastestAnswersTable
+
 import os
 import shutil
 import random
@@ -25,7 +27,11 @@ cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
 server_id = int(os.getenv('SERVER_ID'))
 
-class TheLanguageJungle(commands.Cog):
+jungle_cogs: List[commands.Cog] = [
+	FastestAnswersTable
+]
+
+class TheLanguageJungle(*jungle_cogs):
 	""" Category for game related commands. """
 
 	def __init__(self, client: commands.Bot) -> None:
@@ -810,14 +816,15 @@ class TheLanguageJungle(commands.Cog):
 						self.current_answer = None
 						
 						self.client.loop.create_task(self.stop_round(m.guild))
-
+						secs: int = round(new_current_ts-self.current_ts, 2)
 						text: str = f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵 " \
-							f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+							f"(`{secs} secs`)"
 						self.client.loop.create_task(self.txt.send(text))
 						self.multiplayer['teams']['blue'][1] += 1
 						self.questions[self.round] = [None, str(language).lower()]
 						self.client.loop.create_task(
 							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc))
+						self.client.loop.create_task(self.insert_fastest_answer(member.id, language, secs))
 						return True
 					else:
 						return False
@@ -829,14 +836,15 @@ class TheLanguageJungle(commands.Cog):
 						self.current_answer = None
 
 						self.client.loop.create_task(self.stop_round(m.guild))
-
+						secs: int = round(new_current_ts-self.current_ts, 2)
 						text: str = f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴 " \
-							f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+							f"(`{secs} secs`)"
 						self.client.loop.create_task(self.txt.send(text))
 						self.multiplayer['teams']['red'][1] += 1
 						self.questions[self.round] = [str(language).lower(), None]
 						self.client.loop.create_task(
 							self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc))
+						self.client.loop.create_task(self.insert_fastest_answer(member.id, language, secs))
 						return True
 					else:
 						return False
@@ -899,14 +907,14 @@ class TheLanguageJungle(commands.Cog):
 				
 				await self.stop_round(m.guild)
 
-
-
+				secs: int = round(new_current_ts-self.current_ts, 2)
 				text: str = f"🔵🎉 **Point for the blue team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔵 " \
-					f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+					f"(`{secs} secs`)"
 				await self.txt.send(text)
 				self.multiplayer['teams']['blue'][1] += 1
 				self.questions[self.round] = [None, str(language).lower()]
 				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
+				await self.insert_fastest_answer(member.id, language, secs)
 
 		elif member.id in teams['red'][0]:
 
@@ -917,13 +925,14 @@ class TheLanguageJungle(commands.Cog):
 				self.current_answer = None
 
 				await self.stop_round(m.guild)
-
+				secs: int = round(new_current_ts-self.current_ts, 2)
 				text: str = f"🔴🎉 **Point for the red team! You got it `right`, {member.mention}!\nIt was {language}.** 🎉🔴 " \
-					f"(`{round(new_current_ts-self.current_ts, 2)} secs`)"
+					f"(`{secs} secs`)"
 				await self.txt.send(text)
 				self.multiplayer['teams']['red'][1] += 1
 				self.questions[self.round] = [str(language).lower(), None]
 				await self.audio('language_jungle/SFX/Anime wow - sound effect.mp3', self.vc)
+				await self.insert_fastest_answer(member.id, language, secs)
 
 
 		if answer_right:
@@ -1365,6 +1374,36 @@ class TheLanguageJungle(commands.Cog):
 
 		await server_bot.edit(mute=False)
 		await ctx.reply("**Shall I talk again 🤩!**")
+
+	@commands.command(name="answers_leaderboard", aliases=["al", "alb", "answer_leaderboard", "asl", "aslb"])
+	async def answers_leaderboard_command(self, ctx) -> None:
+		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer) """
+
+		await self.answer_leaderboard_callback(ctx)
+
+	async def answer_leaderboard_callback(self, ctx) -> None:
+		""" Callback for the answers leaderboard command.
+		:param ctx: The context of the command. """
+
+		member: discord.Member = ctx.author
+		answer: discord.PartialMessageable = ctx.send if isinstance(ctx, commands.Context) else ctx.respond
+		current_time = await utils.get_time_now()
+
+		# Gets top 10 fastest answers
+		fastest_answers = await self.get_top_ten_fastest_answers()
+		formatted_fastest_answers = '\n'.join([f"**{i+1}** - <@{fa[0]}>: {fa[1]} (`{fa[2]}`)" for i, fa in enumerate(fastest_answers)])
+
+		# Making embedded message.
+		embed: discord.Embed = discord.Embed(
+			title="__Fastest Answers Leaderboard__",
+			description=f"Here's the leaderboard for the fastest answers given in **The Language Jungle** - (`Multiplayer`) game",
+			color=member.color,
+			timestamp=current_time
+		)
+
+		embed.add_field(name="__Top 10 People__", value=formatted_fastest_answers if formatted_fastest_answers else None)
+
+		await answer(embed=embed)
 
 def setup(client):
 	client.add_cog(TheLanguageJungle(client))
