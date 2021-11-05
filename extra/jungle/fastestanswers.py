@@ -107,7 +107,14 @@ class FastestAnswersTable(commands.Cog):
         """ Gets all Fastest Answers. """
 
         mycursor, _ = await the_database()
-        await mycursor.execute("SELECT * FROM FastestAnswers ORDER BY answer_time ASC LIMIT 10") 
+        await mycursor.execute("""
+        SELECT user_id, language,answer_time
+        FROM FastestAnswers a WHERE answer_time = (
+            SELECT MIN(answer_time)
+            FROM FastestAnswers b
+            WHERE b.user_id = a.user_id) 
+        ORDER BY answer_time ASC LIMIT 10
+        """) 
         answers = await mycursor.fetchall()
         await mycursor.close()
         return answers
