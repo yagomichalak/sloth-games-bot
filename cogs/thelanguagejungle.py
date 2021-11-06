@@ -1400,33 +1400,42 @@ class TheLanguageJungle(*jungle_cogs):
 		await self._samples_callback(ctx)
 
 	@commands.command(name="answers_leaderboard", aliases=["al", "alb", "answer_leaderboard", "asl", "aslb"])
-	async def answers_leaderboard_command(self, ctx) -> None:
-		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer) """
+	async def answers_leaderboard_command(self, ctx, language: str = None) -> None:
+		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer)
+		:param language: The language to show. [Optional][Default = All] """
 
-		await self.answer_leaderboard_callback(ctx)
+		await self.answer_leaderboard_callback(ctx, language)
 
 	@slash_command(name="answers_leaderboard", guild_ids=guild_ids)
-	async def answers_leaderboard_slash(self, ctx) -> None:
+	async def answers_leaderboard_slash(self, ctx, language: Option(str, name="language", description="The language to show.", required=False)) -> None:
 		""" Leaderboard for the Fastest Answers in The Language Jungle game. (Multiplayer) """
 
 		await ctx.defer()
-		await self.answer_leaderboard_callback(ctx)
+		await self.answer_leaderboard_callback(ctx, language)
 
-	async def answer_leaderboard_callback(self, ctx) -> None:
+	async def answer_leaderboard_callback(self, ctx, language: str = None) -> None:
 		""" Callback for the answers leaderboard command.
-		:param ctx: The context of the command. """
+		:param ctx: The context of the command.
+		:param language: The language to show. """
+
 
 		member: discord.Member = ctx.author
 		answer: discord.PartialMessageable = ctx.send if isinstance(ctx, commands.Context) else ctx.respond
 		current_time = await utils.get_time_now()
 
 		# Gets top 10 fastest answers
-		fastest_answers = await self.get_top_ten_fastest_answers()
+		if language is not None:
+			fastest_answers = await self.get_specific_top_ten_fastest_answers(language)
+			if not fastest_answers:
+				return await answer(f"**No results found for the given `language`, {member.mention}!**")
+		else:
+			fastest_answers = await self.get_top_ten_fastest_answers()
+		language = language if language is not None else 'All'
 		formatted_fastest_answers = '\n'.join([f"**{i+1}** - <@{fa[0]}>: {fa[1]} (`{fa[2]}`)" for i, fa in enumerate(fastest_answers)])
 
 		# Making embedded message.
 		embed: discord.Embed = discord.Embed(
-			title="__Fastest Answers Leaderboard__",
+			title=f"__Fastest Answers Leaderboard__ (`{language.title()}`)",
 			description=f"Here's the leaderboard for the fastest answers given in **The Language Jungle** - (`Multiplayer`) game",
 			color=member.color,
 			timestamp=current_time

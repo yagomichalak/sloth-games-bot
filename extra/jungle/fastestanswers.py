@@ -118,3 +118,20 @@ class FastestAnswersTable(commands.Cog):
         answers = await mycursor.fetchall()
         await mycursor.close()
         return answers
+
+    async def get_specific_top_ten_fastest_answers(self, language: str) -> List[List[Union[int, str]]]:
+        """ Gets all Fastest Answers for a specific language.
+        :param language: The language to filter the search. """
+
+        mycursor, _ = await the_database()
+        await mycursor.execute("""
+        SELECT user_id, language,answer_time
+        FROM FastestAnswers a WHERE answer_time = (
+            SELECT MIN(answer_time)
+            FROM FastestAnswers b
+            WHERE b.user_id = a.user_id AND lower(language) = lower(%s)) 
+        ORDER BY answer_time ASC LIMIT 10
+        """, (language,)) 
+        answers = await mycursor.fetchall()
+        await mycursor.close()
+        return answers
