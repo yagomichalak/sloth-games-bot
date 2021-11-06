@@ -1413,7 +1413,7 @@ class TheLanguageJungle(*jungle_cogs):
 		await ctx.defer()
 		await self.answer_leaderboard_callback(ctx, language)
 
-	async def answer_leaderboard_callback(self, ctx, language: str = None) -> None:
+	async def answer_leaderboard_callback(self, ctx, *, language: str = None) -> None:
 		""" Callback for the answers leaderboard command.
 		:param ctx: The context of the command.
 		:param language: The language to show. """
