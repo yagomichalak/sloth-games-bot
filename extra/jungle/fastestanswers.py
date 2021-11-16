@@ -129,9 +129,10 @@ class FastestAnswersTable(commands.Cog):
         FROM FastestAnswers a WHERE answer_time = (
             SELECT MIN(answer_time)
             FROM FastestAnswers b
-            WHERE b.user_id = a.user_id AND lower(language) = lower(%s)) 
+            WHERE b.user_id = a.user_id AND lower(language) = lower(%s))
+        AND lower(language) = lower(%s)
         ORDER BY answer_time ASC LIMIT 10
-        """, (language,)) 
+        """, (language, language)) 
         answers = await mycursor.fetchall()
         await mycursor.close()
         return answers
