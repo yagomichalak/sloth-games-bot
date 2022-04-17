@@ -182,7 +182,7 @@ class TheLanguageJungle(*jungle_cogs):
 
 	# Downloads all content for the Language Jungle game
 	@commands.command()
-	@utils.is_allowed_members([287746936587419648], throw_exc=True)
+	@utils.is_allowed_members([287746936587419648, 224985873324834816], throw_exc=True)
 	async def audio_update(self, ctx: Optional[commands.Context] = None, rall: str = 'no') -> None:
 		""" Downloads all shop images from the GoogleDrive and stores in the bot's folder.
 		:param ctx: The context of the command. [Optional]

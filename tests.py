@@ -88,3 +88,38 @@ def list_spec2(parent):
 
 #list_spec2('144Wqi75ktpUNwg7mN6QnuciyVYwD7fee')
 list_googledrive('')
+
+
+zg!eval
+
+async def send_big_message(title, channel, message, color):
+    """ Sends a big message to a given channel. """
+
+    if (len(message) <= 2048):
+        embed = discord.Embed(title=title, description=message, color=discord.Colour.green())
+        await channel.send(embed=embed)
+    else:
+        embedList = []
+        n = 2048
+        embedList = [message[i:i + n] for i in range(0, len(message), n)]
+        for num, item in enumerate(embedList, start=1):
+            if (num == 1):
+                embed = discord.Embed(title=title, description=item, color=discord.Colour.green())
+                embed.set_footer(text=num)
+                await channel.send(embed=embed)
+            else:
+                embed = discord.Embed(description=item, color=discord.Colour.green())
+                embed.set_footer(text=num)
+                await channel.send(embed=embed)
+
+
+path = './language_jungle/Speech'
+languages = [folder for folder in os.listdir(path)]
+audios = [f"|**{language}:** {len(os.listdir(f'{path}/{language}'))}|" for language in languages]
+
+message = ', '.join(audios)
+await send_big_message('Language Audios', ctx.channel, message)
+
+
+print(audios[0:5])
+#print(', '.join(audios)
