@@ -1,7 +1,6 @@
 client_secrets.json
 credentials.json
 mycreds.txt
-mysqldb.py
 token.txt
 venv/
 audios/
