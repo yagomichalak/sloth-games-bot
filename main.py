@@ -1,6 +1,6 @@
 import discord
 from extra import utils
-from discord.app.commands import Option
+from discord import Option
 from discord.ext import commands
 import os
 from dotenv import load_dotenv

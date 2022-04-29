@@ -1,5 +1,5 @@
 import discord
-from discord.app.commands import slash_command, Option
+from discord import slash_command, Option
 from extra import utils
 from discord.ext import commands, tasks
 from extra.view import TheLanguageJungleMultiplayerView
@@ -10,6 +10,7 @@ from mysqldb import the_database
 from external_cons import the_drive
 
 from extra.jungle.fastestanswers import FastestAnswersTable
+from extra.games.sloth_skills import SlothSkillsTable
 
 import os
 import shutil
@@ -214,6 +215,7 @@ class TheLanguageJungle(*jungle_cogs):
 			#print(f"\033[35mCategory:\033[m {folder}")
 			download_path = f'./language_jungle/{folder}'
 			for file in files:
+				print(file)
 				try:
 					#print(f"\033[34mItem name:\033[m \033[33m{file['title']:<35}\033[m | \033[34mID: \033[m\033[33m{file['id']}\033[m")
 					output_file = os.path.join(download_path, file['title'])
@@ -516,14 +518,16 @@ class TheLanguageJungle(*jungle_cogs):
 		self.multiplayer['message_id'] = msg.id
 
 		self.embed = embed
-		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		await asyncio.sleep(60)
+		# await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
+		# await asyncio.sleep(60)
+		await asyncio.sleep(5)
 		view.stop()
 		# await view.wait()
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 
-		if not count_blue or not count_red:
+		# if not count_blue or not count_red:
+		if not count_blue and not count_red:
 			await self.reset_bot_status()
 			self.active = False
 			self.multiplayer_active = False
@@ -1202,10 +1206,11 @@ class TheLanguageJungle(*jungle_cogs):
 				# 	continue
 
 				await self.update_user_money(member.id, 5)
+				# Tries to update an on-going Skill for each user, if they have one
+				await SlothSkillsTable().update_quest(member.id, 1)
 			except Exception as e:
 				print(e)
 				pass
-
 
 		score_path = './language_jungle/Graphic/multiplayer_score_result.png'
 		background.save(score_path)
