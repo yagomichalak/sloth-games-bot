@@ -518,16 +518,14 @@ class TheLanguageJungle(*jungle_cogs):
 		self.multiplayer['message_id'] = msg.id
 
 		self.embed = embed
-		# await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
-		# await asyncio.sleep(60)
-		await asyncio.sleep(5)
+		await self.audio('language_jungle/SFX/multiplayerjoin.mp3', self.vc)
+		await asyncio.sleep(60)
 		view.stop()
 		# await view.wait()
 		count_blue = len(self.multiplayer['teams']['blue'][0])
 		count_red = len(self.multiplayer['teams']['red'][0])
 
-		# if not count_blue or not count_red:
-		if not count_blue and not count_red:
+		if not count_blue or not count_red:
 			await self.reset_bot_status()
 			self.active = False
 			self.multiplayer_active = False
