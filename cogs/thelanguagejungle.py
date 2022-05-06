@@ -27,6 +27,7 @@ language_jungle_txt_id = int(os.getenv('LANGUAGE_JUNGLE_TXT_ID'))
 language_jungle_vc_id = int(os.getenv('LANGUAGE_JUNGLE_VC_ID'))
 cosmos_id = int(os.getenv('COSMOS_ID'))
 mod_role_id = int(os.getenv('MOD_ROLE_ID'))
+senior_mod_role_id = int(os.getenv('SENIOR_MOD_ROLE_ID'))
 server_id = int(os.getenv('SERVER_ID'))
 
 guild_ids: List[int] = [server_id]
@@ -183,7 +184,7 @@ class TheLanguageJungle(*jungle_cogs):
 
 	# Downloads all content for the Language Jungle game
 	@commands.command()
-	@utils.is_allowed_members([287746936587419648, 224985873324834816], throw_exc=True)
+	@commands.check_any(utils.is_allowed_members([287746936587419648, 224985873324834816, 835574287585771572]), utils.is_allowed([senior_mod_role_id]))
 	async def audio_update(self, ctx: Optional[commands.Context] = None, rall: str = 'no') -> None:
 		""" Downloads all shop images from the GoogleDrive and stores in the bot's folder.
 		:param ctx: The context of the command. [Optional]
@@ -580,7 +581,6 @@ class TheLanguageJungle(*jungle_cogs):
 				self.get_multiplayer_language_response_after(
 					self.multiplayer['teams'], language)))
 
-
 	async def make_multiplayer_image(self) -> None:
 		""" Makes the multiplayer's session image. """
 
@@ -674,7 +674,6 @@ class TheLanguageJungle(*jungle_cogs):
 		im_thumb = mask_circle_transparent(im_square, 4)
 		return im_thumb
 	
-
 	async def audio(self, audio: str, channel: discord.VoiceChannel, func: Optional[Callable[[Any], Any]] = None) -> None:
 		""" Reproduces an audio by informing a path and a channel.
 		:param audio: The name of the audio.
@@ -712,7 +711,6 @@ class TheLanguageJungle(*jungle_cogs):
 			except Exception:
 				print('try harder')
 				continue
-
 
 	async def get_language_response(self, member: discord.Member, channel: discord.TextChannel, language: str) -> None:
 		""" (Singleplayer) Waits for a user response and checks whether it's right or wrong.
@@ -788,7 +786,6 @@ class TheLanguageJungle(*jungle_cogs):
 					return await self.make_score_image(self.questions, channel)
 				except:
 					await self.reset_bot_status()
-
 
 	async def get_multiplayer_language_response_after(self, teams: dict, language: str) -> None:
 		""" (Multiplayer) Waits for a user response and checks whether it's right or wrong.
@@ -956,7 +953,6 @@ class TheLanguageJungle(*jungle_cogs):
 				except:
 					return await self.reset_bot_status()
 				
-
 	async def make_score_image(self, questions: dict, channel: discord.TextChannel) -> None:
 		""" Makes the score image.
 		:param questions: The questions asked in the game.
@@ -1067,7 +1063,6 @@ class TheLanguageJungle(*jungle_cogs):
 		""" Checks the winner of the game.
 		:param redp: Red team points.
 		:param bluep: Blue team points. """
-
 		
 		embed = discord.Embed(
 			title="__End of the Game__",
@@ -1129,7 +1124,6 @@ class TheLanguageJungle(*jungle_cogs):
 				await self.txt.send(embed=embed)
 		finally:
 			await self.reset_bot_status()
-
 
 	async def make_multiplayer_score_image(self, winners: List[int], image_path: str) -> str:
 		""" Makes the multiplayer score image.
@@ -1214,7 +1208,6 @@ class TheLanguageJungle(*jungle_cogs):
 		background.save(score_path)
 		return score_path
 		
-
 	# Database method (1)
 	async def update_user_money(self, user_id: int, money: int) -> None:
 		""" Updates the user money.
@@ -1225,7 +1218,6 @@ class TheLanguageJungle(*jungle_cogs):
 		await mycursor.execute("UPDATE UserCurrency SET user_money = user_money + %s WHERE user_id = %s", (money, user_id))
 		await db.commit()
 		await mycursor.close()
-
 
 	async def reset_bot_status(self) -> None:
 		""" Resets the bot's status. """
@@ -1252,7 +1244,6 @@ class TheLanguageJungle(*jungle_cogs):
 		}
 		self.current_ts = None
 
-
 	# @commands.command(aliases=['refresh', 'rfcd', 'reset'])
 	# @commands.has_permissions(administrator=True)
 	# async def refresh_cooldown(self, ctx, member: Optional[discord.Member] = None) -> None:
@@ -1271,7 +1262,6 @@ class TheLanguageJungle(*jungle_cogs):
 	# 			return await ctx.send(f"**{member.mention}'s cooldown has been reset!**")
 	# 	else:
 	# 		await ctx.send("**For some reason I couldn't reset the cooldown for this member, lol!**")
-
 
 	# Database methods (3)
 	async def get_user_currency(self, user_id: int) -> List[List[int]]:
@@ -1344,9 +1334,7 @@ class TheLanguageJungle(*jungle_cogs):
 		embed.set_footer(text=f"Requested by: {ctx.author}", icon_url=ctx.author.display_avatar)
 		await answer(embed=embed)
 
-
-	@commands.command(aliases=["stfu", "shutup", "shut_up", "silent", "quiet", "shh"])
-	@utils.is_allowed_members([287746936587419648, 835574287585771572], throw_exc=True)
+	@commands.check_any(utils.is_allowed_members([287746936587419648, 224985873324834816, 835574287585771572]), utils.is_allowed([senior_mod_role_id]))
 	async def silence(self, ctx) -> None:
 		""" Server mutes the bot until it starts reproducing language audio samples. """
 
@@ -1365,8 +1353,7 @@ class TheLanguageJungle(*jungle_cogs):
 		await server_bot.edit(mute=True)
 		await ctx.reply("**I'll keep in silence for a bit 🤐!**")
 
-	@commands.command(aliases=["talk", "speak", "unsilent"])
-	@utils.is_allowed_members([287746936587419648, 835574287585771572], throw_exc=True)
+	@commands.check_any(utils.is_allowed_members([287746936587419648, 224985873324834816, 835574287585771572]), utils.is_allowed([senior_mod_role_id]))
 	async def unsilence(self, ctx) -> None:
 		""" Server unmutes the bot. """
 
@@ -1380,7 +1367,6 @@ class TheLanguageJungle(*jungle_cogs):
 
 		await server_bot.edit(mute=False)
 		await ctx.reply("**Shall I talk again 🤩!**")
-
 
 	@slash_command(name="play", guild_ids=guild_ids)
 	async def play_language(self, ctx: discord.ApplicationContext, mode:
