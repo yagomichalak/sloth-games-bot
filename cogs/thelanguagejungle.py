@@ -1335,7 +1335,7 @@ class TheLanguageJungle(*jungle_cogs):
 		await answer(embed=embed)
 
 	@commands.check_any(utils.is_allowed_members([287746936587419648, 224985873324834816, 835574287585771572]), utils.is_allowed([senior_mod_role_id]))
-	@commands.command()
+	@commands.command(aliases=["stfu", "shutup", "shut_up", "silent", "quiet", "shh"])
 	async def silence(self, ctx) -> None:
 		""" Server mutes the bot until it starts reproducing language audio samples. """
 
@@ -1355,7 +1355,7 @@ class TheLanguageJungle(*jungle_cogs):
 		await ctx.reply("**I'll keep in silence for a bit 🤐!**")
 
 	@commands.check_any(utils.is_allowed_members([287746936587419648, 224985873324834816, 835574287585771572]), utils.is_allowed([senior_mod_role_id]))
-	@commands.command()
+	@commands.command(aliases=["talk", "speak", "unsilent"])
 	async def unsilence(self, ctx) -> None:
 		""" Server unmutes the bot. """
 
