@@ -30,6 +30,9 @@ async def on_command_error(ctx: commands.Context, error: Any):
     elif isinstance(error, commands.NotOwner):
         await ctx.send("You're not the bot's owner!")
 
+    elif isinstance(error, commands.errors.CheckAnyFailure):
+        await ctx.send("**You can't do that!**")
+
     elif isinstance(error, commands.CommandOnCooldown):
         secs = error.retry_after
         if int(secs) >= 60:
