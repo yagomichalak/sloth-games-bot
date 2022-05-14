@@ -1056,7 +1056,7 @@ class TheLanguageJungle(*jungle_cogs):
 			else:
 				await channel.send(f"<:zslothmonopoly:705452184602673163> **10łł have been added into your account!** <:zslothmonopoly:705452184602673163>")
 
-		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking, to `Cosmos △#7757` or to `Arda-#1212`, to expand our game, we'd be pleased to hear it!**"))
+		await channel.send(embed=discord.Embed(title=f"**If you can, please send an audio speaking, to <@423829836537135108>, to expand our game, we'd be pleased to hear it!**"))
 		await self.reset_bot_status()
 
 	async def check_winner(self, redp: int, bluep: int) -> None:
