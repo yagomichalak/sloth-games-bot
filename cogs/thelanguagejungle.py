@@ -762,6 +762,10 @@ class TheLanguageJungle(*jungle_cogs):
 				self.lives -= 1
 				await self.audio('language_jungle/SFX/Wrong Answer.mp3', channel)
 		finally:
+			if self.status == 'stop':
+				self.status = 'normal'
+				return
+
 			# Checks if the member has remaining lives
 			if self.lives > 0:				
 				# Restarts the game if it's not the last round
@@ -867,6 +871,10 @@ class TheLanguageJungle(*jungle_cogs):
 			self.current_answer = None
 
 		finally:
+			if self.status == 'stop':
+				self.status = 'normal'
+				return
+				
 			# Restarts the game if it's not the last round
 			if self.round < 10:
 				await channel.send(f"**New round in 10 seconds... <a:10_countdown:891431770912858194>**")
@@ -1201,7 +1209,7 @@ class TheLanguageJungle(*jungle_cogs):
 				# Tries to update an on-going Skill for each user, if they have one
 				await SlothSkillsTable().update_quest(member.id, 1)
 			except Exception as e:
-				print(e)
+				print('Error at finishing quest', e)
 				pass
 
 		score_path = './language_jungle/Graphic/multiplayer_score_result.png'
