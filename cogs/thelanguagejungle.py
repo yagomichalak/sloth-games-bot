@@ -1436,5 +1436,15 @@ class TheLanguageJungle(*jungle_cogs):
 
 		await answer(embed=embed)
 
+
+	@commands.command(aliases=["getanswer", "get_answer", "currentanswer", "current"])
+	@commands.has_permissions(administrator=True)
+	async def current_answer(self, ctx) -> None:
+		""" Gets the current answer. """
+
+		languages = self.reproduced_languages
+		current_answer: str = None if not languages else languages[-1]
+		await ctx.send(f"**The current answer is: `{current_answer}`!**")
+
 def setup(client):
 	client.add_cog(TheLanguageJungle(client))
